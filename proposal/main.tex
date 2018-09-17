@@ -1,0 +1,33 @@
+\documentclass[10pt, oneside,english]{article}
+\usepackage{geometry}
+\geometry{a4paper}
+\usepackage[spanish, es-noindentfirst]{babel}
+\selectlanguage{spanish}
+\usepackage[utf8]{inputenc}
+
+\usepackage{graphicx}
+
+\usepackage{amssymb}
+\usepackage{authblk}
+
+
+\title{Code Migration for a Load Balanced Distributed Computing Platform}
+\author[1]{Bradley Wood}
+\affil[ ]{University of Ontario Institute of Technology}
+\renewcommand\Authands{, }
+\date{}
+
+\begin{document}
+    \maketitle
+
+    \section{Overview}\label{sec:overview}
+
+    Systems like Java RMI (Remote Method Invocation) require extensive setup on the
+    server side which do not facilitate code migration.
+    If the client wants to execute load balanced jobs across many machines
+    the migration process can save the developer from a client-server architecture
+    and simplify the project setup.
+    Java RMI also has other design limitations that prevent the client from execution static
+    methods because they cannot be defined in an interface.
+
+\end{document}

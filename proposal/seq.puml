@@ -1,0 +1,16 @@
+@startuml
+
+Client -> Server: Authentication request
+Server --> Client: Authentication response
+
+|||
+
+Client -> Server: Migration of class files
+Server --> Client: Migration result
+
+|||
+
+Client -> Server: Job request
+Server --> Client: Job response
+
+@enduml
