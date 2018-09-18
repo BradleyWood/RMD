@@ -4,3 +4,4 @@ target/
 .aux
 .log
 .pdf
+*.png
