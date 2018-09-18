@@ -1,8 +1,8 @@
 \documentclass[10pt, oneside,english]{article}
 \usepackage{geometry}
 \geometry{a4paper}
-\usepackage[spanish, es-noindentfirst]{babel}
-\selectlanguage{spanish}
+\usepackage[english]{babel}
+\selectlanguage{english}
 \usepackage[utf8]{inputenc}
 
 \usepackage{graphicx}
@@ -11,8 +11,8 @@
 \usepackage{authblk}
 
 
-\title{Code Migration for a Load Balanced Distributed Computing Platform}
-\author[1]{Bradley Wood}
+\title{A Load Balanced Distributed Computing Platform with Code Migration}
+\author[]{Bradley Wood}
 \affil[ ]{University of Ontario Institute of Technology}
 \renewcommand\Authands{, }
 \date{}
@@ -38,6 +38,33 @@
         \item Simplify distributed workloads on the JVM with code migration
         \item Provide load balancing across several machines
         \item Record and catalogue job results and statistics
+        \item Synchronous and asynchronous job requests
     \end{itemize}
+
+    \section{Architecture}\label{sec:architecture}
+
+    \subsection{Code Migration}\label{migration}
+
+    Inorder to execute instructions a remote server, we must perform a migration action
+    upon the function's first invocation.
+
+
+    \begin{figure}
+        \centering
+        \includegraphics[scale=0.5]{migration.png}
+        \caption{The migration process}
+    \end{figure}
+
+    \subsection{Load Balancing}\label{subsec:balancing}
+
+    The load balancer should act as a middle-man between the client and the server
+    and the client should not know the difference between communication with
+    the load balancer or with a job server.
+
+    \begin{figure}
+        \centering
+        \includegraphics[scale=0.5]{balancing.png}
+        \caption{Interaction between entities}
+    \end{figure}
 
 \end{document}
