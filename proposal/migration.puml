@@ -1,0 +1,12 @@
+@startuml
+
+(*) --> if "server has code" then
+    -->[true] "Form dependency graph"
+    --> "Send class + dependencies"
+    -right->(*)
+else
+    -->[false] (*)
+endif
+
+
+@enduml
