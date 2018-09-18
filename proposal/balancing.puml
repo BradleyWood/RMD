@@ -1,0 +1,20 @@
+@startuml
+
+[Client] as client
+[Load Balancer] as balancer
+[Database] as db
+
+[Job Server A] as serverA
+[Job Server B] as serverB
+[Job Server C] as serverC
+
+client <..> balancer
+balancer <..> serverA
+balancer <..> serverB
+balancer <..> serverC
+
+serverA <..> db
+serverB <..> db
+serverC <..> db
+
+@enduml

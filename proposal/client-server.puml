@@ -1,0 +1,10 @@
+@startuml
+
+[Client] as client
+[Job Server] as server
+[Database] as db
+
+client <..> server
+server <..> db
+
+@enduml
