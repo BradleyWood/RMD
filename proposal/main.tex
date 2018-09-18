@@ -22,12 +22,22 @@
 
     \section{Overview}\label{sec:overview}
 
-    Systems like Java RMI (Remote Method Invocation) require extensive setup on the
-    server side which do not facilitate code migration.
+    Systems like Java RMI (Remote Method Invocation) allow developers to distribute
+    workload across a network.
+    However, systems like RMI require extensive setup on the server side which does
+    not facilitate code migration.
     If the client wants to execute load balanced jobs across many machines
-    the migration process can save the developer from a client-server architecture
-    and simplify the project setup.
+    a simple migration process could shield the developer from a client-server
+    architecture and simplify the project setup.
     Java RMI also has other design limitations that prevent the client from execution static
     methods because they cannot be defined in an interface.
+
+    \section{Objectives}\label{sec:objectives}
+
+    \begin{itemize}
+        \item Simplify distributed workloads on the JVM with code migration
+        \item Provide load balancing across several machines
+        \item Record and catalogue job results and statistics
+    \end{itemize}
 
 \end{document}
