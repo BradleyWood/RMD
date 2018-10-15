@@ -3,45 +3,50 @@ package net.uoit.rmd.asm;
 import org.objectweb.asm.ClassReader;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
+import static net.uoit.rmd.asm.DependencySet.PACKAGE_FILTER;
+
 public class DependencyManager {
 
-    public static Map<String, byte[]> getDependencies(final Class clazz) throws IOException {
-        return getAllDependencies(new HashSet<>(), clazz.getClassLoader(), clazz.getName());
+    public static Map<String, byte[]> getDependencies(final Class clazz) throws IOException, ClassNotFoundException {
+        return getAllDependencies(new HashSet<>(), clazz.getName());
     }
 
-    public static Map<String, byte[]> getDependencies(final String clazz) throws IOException {
-        return getAllDependencies(new HashSet<>(), ClassLoader.getSystemClassLoader(), clazz);
+    public static Map<String, byte[]> getDependencies(final String clazz) throws IOException, ClassNotFoundException {
+        return getAllDependencies(new HashSet<>(), clazz);
     }
 
-    private static Map<String, byte[]> getAllDependencies(final Set<String> mappedClasses, final ClassLoader loader,
-                                                          final String className) throws IOException {
+    private static Map<String, byte[]> getAllDependencies(final Set<String> mappedClasses, final String className)
+            throws IOException {
         final Map<String, byte[]> map = new HashMap<>();
 
         if (mappedClasses.contains(className))
             return map;
 
-        final byte[] bytes = getBytes(loader, className);
+        final byte[] bytes = getBytes(className);
         final Set<String> dependencies = getDependencies(bytes);
 
         mappedClasses.add(className);
 
-        if (dependencies.contains(className))
-            map.put(className, bytes);
-
-        for (String dependency : dependencies) {
-            map.putAll(getAllDependencies(mappedClasses, loader, dependency));
+        for (final String dependency : dependencies) {
+            map.putAll(getAllDependencies(mappedClasses, dependency));
         }
+
+        for (final String s : PACKAGE_FILTER) {
+            if (className.startsWith(s))
+                return map;
+        }
+
+        map.put(className, bytes);
 
         return map;
     }
 
-    private static byte[] getBytes(final ClassLoader loader, final String className) throws IOException {
-        final InputStream in = loader.getResourceAsStream(className.replace(".", File.separator) + ".class");
+    private static byte[] getBytes(final String className) throws IOException {
+        final InputStream in = Object.class.getResourceAsStream("/" + className.replace('.', '/') + ".class");
         return readFully(in);
     }
 

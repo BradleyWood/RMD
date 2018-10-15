@@ -16,7 +16,7 @@ class DependencySet {
 
     private final @Getter Set<String> dependencies = new HashSet<>();
 
-    private final List<String> FILTER = Arrays.asList(
+    public static final List<String> PACKAGE_FILTER = Arrays.asList(
             "java.",
             "javax.",
             "net.uoit.rmd."
@@ -35,9 +35,12 @@ class DependencySet {
     }
 
     public void addInternalName(final String internalName) {
+        if (internalName == null)
+            return;
+
         final String name = internalName.replace("/", ".");
 
-        for (final String s : FILTER) {
+        for (final String s : PACKAGE_FILTER) {
             if (name.startsWith(s))
                 return;
         }
