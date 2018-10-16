@@ -81,17 +81,26 @@ public @Data class Connection implements Runnable {
      *
      * @param messageListener The packet listener
      */
-    public void setMessageListener(final @NonNull MessageListener messageListener) {
+    public void setMessageListener(final MessageListener messageListener) {
         this.messageListener = messageListener;
     }
 
     /**
      * Adds a connection listener
      *
-     * @param listener the connection listener
+     * @param listener The connection listener to add
      */
     public void addConnectionListener(final @NonNull ConnectionListener listener) {
         connectionListeners.add(listener);
+    }
+
+    /**
+     * Removes a connection listener
+     *
+     * @param listener The listener to remove
+     */
+    public void removeConnectionListener(final @NonNull ConnectionListener listener) {
+        connectionListeners.remove(listener);
     }
 
     /**
