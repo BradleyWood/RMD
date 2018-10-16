@@ -11,11 +11,11 @@ import static net.uoit.rmd.asm.DependencySet.PACKAGE_FILTER;
 
 public class DependencyManager {
 
-    public static Map<String, byte[]> getDependencies(final Class clazz) throws IOException, ClassNotFoundException {
+    public static Map<String, byte[]> getDependencies(final Class clazz) throws IOException {
         return getAllDependencies(new HashSet<>(), clazz.getName());
     }
 
-    public static Map<String, byte[]> getDependencies(final String clazz) throws IOException, ClassNotFoundException {
+    public static Map<String, byte[]> getDependencies(final String clazz) throws IOException {
         return getAllDependencies(new HashSet<>(), clazz);
     }
 
