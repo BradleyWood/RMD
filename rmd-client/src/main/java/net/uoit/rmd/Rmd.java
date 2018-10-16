@@ -13,11 +13,14 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.Socket;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Rmd {
 
     private static final Map<Serializable, DelegateInfo> delegateMap = Collections.synchronizedMap(new HashMap<>());
     private static final Set<Class> remoteClasses = Collections.synchronizedSet(new HashSet<>());
+    private static final ExecutorService executorService = Executors.newCachedThreadPool();
     private static final String SERVER_ADDRESS = "localhost";
     private static final int SERVER_PORT = 5050;
     private static Connection connection;
@@ -82,7 +85,7 @@ public class Rmd {
 
     public static <T> ConsumerDelegate<T> asDelegate(final ConsumerDelegate<T> delegate) {
         final DelegateInfo info = getDelegateInfo(delegate);
-        return (t) -> invokeDelegate(info, new Object[] {t});
+        return (t) -> invokeDelegate(info, new Object[]{t});
     }
 
     public static <T, R> FunctionDelegate<T, R> asDelegate(final FunctionDelegate<T, R> delegate) {
@@ -111,6 +114,34 @@ public class Rmd {
 
     public static <R> R delegate(final ProducerDelegate<R> delegate) {
         return asDelegate(delegate).invoke();
+    }
+
+    public static <R> void delegate(final ProducerDelegate<R> delegate, final Callback<R> callback) {
+        executorService.submit(() -> {
+            final R result = delegate(delegate);
+
+            if (callback != null)
+                callback.accept(result);
+        });
+    }
+
+    public static <T, R> void delegate(final FunctionDelegate<T, R> delegate, final T t, final Callback<R> callback) {
+        executorService.submit(() -> {
+            final R result = delegate(delegate, t);
+
+            if (callback != null)
+                callback.accept(result);
+        });
+    }
+
+    public static <T, U, R> void delegate(final BiFunctionDelegate<T, U, R> delegate, final T t, final U u,
+                                           final Callback<R> callback) {
+        executorService.submit(() -> {
+            final R result = delegate(delegate, t, u);
+
+            if (callback != null)
+                callback.accept(result);
+        });
     }
 
     private static DelegateInfo getDelegateInfo(final Serializable methodReference) {
