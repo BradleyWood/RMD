@@ -1,6 +1,7 @@
 package net.uoit.rmd;
 
 import net.uoit.rmd.messages.JobRequest;
+import net.uoit.rmd.messages.JobResponse;
 import net.uoit.rmd.messages.MigrationRequest;
 import net.uoit.rmd.messages.Response;
 
@@ -41,20 +42,19 @@ public class Client {
         return response;
     }
 
-    public Response handleJobRequest(final JobRequest jobRequest) {
+    public JobResponse handleJobRequest(final JobRequest jobRequest) {
         final Method method = methodMap.get(jobRequest.getMethodHash());
-
-        Response response;
+        JobResponse response;
 
         if (method == null) {
-            response = new Response(false, "No such method");
+            response = new JobResponse(new NoSuchMethodException("Method hash: " + jobRequest.getMethodHash()));
         } else {
             try {
                 final Object result = method.invoke(null, jobRequest.getArguments());
 
-                response = new Response(true, result.toString());
+                response = new JobResponse(result);
             } catch (IllegalAccessException | InvocationTargetException e) {
-                response = new Response(true, "Failure: " + e.getMessage());
+                response = new JobResponse(e);
             }
         }
 
