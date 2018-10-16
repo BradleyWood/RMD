@@ -1,7 +1,7 @@
 package net.uoit.rmd.delegate;
 
-import jdk.internal.org.objectweb.asm.Type;
 import lombok.Data;
+import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
 
