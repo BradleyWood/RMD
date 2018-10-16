@@ -7,9 +7,9 @@ import lombok.EqualsAndHashCode;
 public @Data class JobResponse extends Response {
 
     private Object result = null;
-    private Exception exception = null;
+    private Throwable exception = null;
 
-    public JobResponse(final Exception exception) {
+    public JobResponse(final Throwable exception) {
         super(false, exception.getMessage());
         this.exception = exception;
     }
