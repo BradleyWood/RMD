@@ -18,7 +18,7 @@ import java.util.concurrent.Executors;
 
 public class Rmd {
 
-    private static final Map<Serializable, DelegateInfo> delegateMap = Collections.synchronizedMap(new HashMap<>());
+    private static final Map<Serializable, Serializable> delegateMap = Collections.synchronizedMap(new HashMap<>());
     private static final Set<Class> remoteClasses = Collections.synchronizedSet(new HashSet<>());
     private static final ExecutorService executorService = Executors.newCachedThreadPool();
     private static final String SERVER_ADDRESS = "localhost";
@@ -78,26 +78,59 @@ public class Rmd {
     }
 
     public static <R> ProducerDelegate<R> asDelegate(final ProducerDelegate<R> delegate) {
-        final DelegateInfo info = getDelegateInfo(delegate);
+        final Serializable producer = delegateMap.get(delegate);
 
-        return () -> (R) invokeDelegate(info, new Object[0]);
+        if (producer instanceof ProducerDelegate)
+            return (ProducerDelegate<R>) producer;
+
+        final DelegateInfo info = getDelegateInfo(delegate);
+        final ProducerDelegate<R> producerD = () -> (R) invokeDelegate(info, new Object[0]);
+
+        delegateMap.put(delegate, producerD);
+
+        return producerD;
     }
 
     public static <T> ConsumerDelegate<T> asDelegate(final ConsumerDelegate<T> delegate) {
+        final Serializable consumer = delegateMap.get(delegate);
+
+        if (consumer instanceof ConsumerDelegate)
+            return (ConsumerDelegate<T>) consumer;
+
         final DelegateInfo info = getDelegateInfo(delegate);
-        return (t) -> invokeDelegate(info, new Object[]{t});
+        final ConsumerDelegate<T> consumerD = (t) -> invokeDelegate(info, new Object[]{t});
+
+        delegateMap.put(delegate, consumerD);
+
+        return consumerD;
     }
 
     public static <T, R> FunctionDelegate<T, R> asDelegate(final FunctionDelegate<T, R> delegate) {
-        final DelegateInfo info = getDelegateInfo(delegate);
+        final Serializable fun = delegateMap.get(delegate);
 
-        return (t) -> (R) invokeDelegate(info, new Object[]{t});
+        if (fun instanceof FunctionDelegate)
+            return (FunctionDelegate<T, R>) fun;
+
+        final DelegateInfo info = getDelegateInfo(delegate);
+        FunctionDelegate<T, R> funD = (t) -> (R) invokeDelegate(info, new Object[]{t});
+
+        delegateMap.put(delegate, funD);
+
+        return funD;
     }
 
     public static <T, U, R> BiFunctionDelegate<T, U, R> asDelegate(final BiFunctionDelegate<T, U, R> delegate) {
-        final DelegateInfo info = getDelegateInfo(delegate);
+        final Serializable fun = delegateMap.get(delegate);
 
-        return (t, u) -> (R) invokeDelegate(info, new Object[]{t, u});
+        if (fun instanceof BiFunctionDelegate)
+            return (BiFunctionDelegate<T, U, R>) fun;
+
+        final DelegateInfo info = getDelegateInfo(delegate);
+        final BiFunctionDelegate<T, U, R> biFunctionDelegate = (t, u) -> (R) invokeDelegate(info, new Object[]{t, u});
+
+        delegateMap.put(delegate, biFunctionDelegate);
+
+        return biFunctionDelegate;
     }
 
     public static <T, U, R> R delegate(final BiFunctionDelegate<T, U, R> delegate, final T t, final U u) {
@@ -135,7 +168,7 @@ public class Rmd {
     }
 
     public static <T, U, R> void delegate(final BiFunctionDelegate<T, U, R> delegate, final T t, final U u,
-                                           final Callback<R> callback) {
+                                          final Callback<R> callback) {
         executorService.submit(() -> {
             final R result = delegate(delegate, t, u);
 
@@ -145,11 +178,6 @@ public class Rmd {
     }
 
     private static DelegateInfo getDelegateInfo(final Serializable methodReference) {
-        final DelegateInfo info = delegateMap.get(methodReference);
-
-        if (info != null)
-            return info;
-
         final SerializedLambda serializedLambda = getLambda(methodReference);
 
         if (serializedLambda == null)
