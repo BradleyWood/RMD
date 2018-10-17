@@ -133,6 +133,24 @@ public class Rmd {
         return biFunctionDelegate;
     }
 
+    public static <T, U, V, R> TriFunctionDelegate<T, U, V, R> asDelegate(final TriFunctionDelegate<T, U, V, R> delegate) {
+        final Serializable fun = delegateMap.get(delegate);
+
+        if (fun instanceof TriFunctionDelegate)
+            return (TriFunctionDelegate<T, U, V, R>) fun;
+
+        final DelegateInfo info = getDelegateInfo(delegate);
+        final TriFunctionDelegate<T, U, V, R> triFunctionDelegate = (t, u, v) -> (R) invokeDelegate(info, new Object[]{t, u, v});
+
+        delegateMap.put(delegate, triFunctionDelegate);
+
+        return triFunctionDelegate;
+    }
+
+    public static <T, U, V, R> R delegate(final TriFunctionDelegate<T, U, V, R> delegate, final T t, final U u, final V v) {
+        return asDelegate(delegate).invoke(t, u, v);
+    }
+
     public static <T, U, R> R delegate(final BiFunctionDelegate<T, U, R> delegate, final T t, final U u) {
         return asDelegate(delegate).invoke(t, u);
     }
@@ -171,6 +189,16 @@ public class Rmd {
                                           final Callback<R> callback) {
         executorService.submit(() -> {
             final R result = delegate(delegate, t, u);
+
+            if (callback != null)
+                callback.accept(result);
+        });
+    }
+
+    public static <T, U, V, R> void delegate(final TriFunctionDelegate<T, U, V, R> delegate, final T t, final U u,
+                                          final V v, final Callback<R> callback) {
+        executorService.submit(() -> {
+            final R result = delegate(delegate, t, u, v);
 
             if (callback != null)
                 callback.accept(result);
