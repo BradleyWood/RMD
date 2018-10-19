@@ -16,9 +16,10 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+@SuppressWarnings("unchecked")
 public class Rmd {
 
-    private static final Map<Serializable, Serializable> delegateMap = Collections.synchronizedMap(new HashMap<>());
+    private static final Map<Object, Serializable> delegateMap = Collections.synchronizedMap(new HashMap<>());
     private static final Set<Class> remoteClasses = Collections.synchronizedSet(new HashSet<>());
     private static final ExecutorService executorService = Executors.newCachedThreadPool();
     private static final String SERVER_ADDRESS = "localhost";
@@ -75,6 +76,19 @@ public class Rmd {
 
         sneakyThrow(toThrow);
         return null;
+    }
+
+    public static FunctionDelegate asDelegate(final DelegateInfo delegate) {
+        final Serializable producer = delegateMap.get(delegate);
+
+        if (producer instanceof FunctionDelegate)
+            return (FunctionDelegate) producer;
+
+        final FunctionDelegate producerD = (i) -> invokeDelegate(delegate, new Object[] {i});
+
+        delegateMap.put(delegate, producerD);
+
+        return producerD;
     }
 
     public static <R> ProducerDelegate<R> asDelegate(final ProducerDelegate<R> delegate) {
