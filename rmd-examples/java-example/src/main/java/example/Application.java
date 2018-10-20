@@ -8,14 +8,10 @@ public class Application {
         System.out.println("6! " + delegate(Functions::factorial, 6));
 
         for (int i = 0; i < 10; i++) {
-//            System.out.println("6! " + delegate(Functions::factorial, 6));
-            int finalI = i;
-            delegate(Functions::factorial, finalI, gg -> {
-                System.out.println("Callback " + gg);
-            });
+            delegate((a) -> a * 2, i, System.out::println);
         }
 
-        Thread.sleep(10000);
+        Thread.sleep(100);
         System.exit(0);
     }
 }
