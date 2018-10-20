@@ -1,5 +1,6 @@
 package net.uoit.rmd;
 
+import lombok.Synchronized;
 import net.uoit.rmd.asm.DependencyManager;
 import net.uoit.rmd.delegate.*;
 import net.uoit.rmd.messages.JobRequest;
@@ -28,6 +29,7 @@ public class Rmd {
     private static final int SERVER_PORT = 5050;
     private static Connection connection;
 
+    @Synchronized
     private static void connect() throws IOException {
         if (connection == null || connection.getSocket().isClosed()) {
             connection = new Connection(new Socket(SERVER_ADDRESS, SERVER_PORT));
@@ -35,10 +37,7 @@ public class Rmd {
         }
     }
 
-    private static <E extends Throwable> void sneakyThrow(final Throwable e) throws E {
-        throw (E) e;
-    }
-
+    @Synchronized
     private static void migrate(final DelegateInfo info) throws IOException {
         if (!classes.contains(info.getDefiningClass().getName())) {
             final Map<String, byte[]> deps = DependencyManager.getDependencies(info.getDefiningClass());
@@ -48,10 +47,18 @@ public class Rmd {
             }
 
             classes.addAll(deps.keySet());
+            classes.add(info.getDefiningClass().getName());
+
+            if (deps.isEmpty())
+                return;
 
             final MigrationRequest mr = new MigrationRequest(deps);
             connection.send(mr);
         }
+    }
+
+    private static <E extends Throwable> void sneakyThrow(final Throwable e) throws E {
+        throw (E) e;
     }
 
     private static Object invokeDelegate(final DelegateInfo info, final Object[] array) {
@@ -94,7 +101,7 @@ public class Rmd {
         if (producer instanceof FunctionDelegate)
             return (FunctionDelegate) producer;
 
-        final FunctionDelegate producerD = (i) -> invokeDelegate(delegate, new Object[] {i});
+        final FunctionDelegate producerD = (i) -> invokeDelegate(delegate, new Object[]{i});
 
         delegateMap.put(delegate, producerD);
 
@@ -220,7 +227,7 @@ public class Rmd {
     }
 
     public static <T, U, V, R> void delegate(final TriFunctionDelegate<T, U, V, R> delegate, final T t, final U u,
-                                          final V v, final Callback<R> callback) {
+                                             final V v, final Callback<R> callback) {
         executorService.submit(() -> {
             final R result = delegate(delegate, t, u, v);
 
