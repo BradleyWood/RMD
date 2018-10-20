@@ -19,11 +19,12 @@ class DependencySet {
     public static final List<String> PACKAGE_FILTER = Arrays.asList(
             "java.",
             "javax.",
-            "net.uoit.rmd."
+            "net.uoit.rmd.",
+            "kotlin."
     );
 
     public void addDesc(final String desc) {
-        if (!desc.contains("L")) // primitive
+        if (desc == null || !desc.contains("L")) // primitive
             return;
 
         Type type = Type.getType(desc);
@@ -38,7 +39,21 @@ class DependencySet {
         if (internalName == null)
             return;
 
-        final String name = internalName.replace("/", ".");
+        String name = internalName;
+
+        if (internalName.contains("("))
+            throw new RuntimeException(internalName);
+
+        if (internalName.contains("[")) {
+            final Type elementType = Type.getType(internalName).getElementType();
+
+            if (isPrimitive(elementType))
+                return;
+
+            name = elementType.getInternalName();
+        }
+
+        name = name.replace("/", ".");
 
         for (final String s : PACKAGE_FILTER) {
             if (name.startsWith(s))
@@ -61,4 +76,10 @@ class DependencySet {
         }
     }
 
+    private boolean isPrimitive(final Type type) {
+        return Type.VOID_TYPE.equals(type) || Type.BYTE_TYPE.equals(type) || Type.SHORT_TYPE.equals(type) ||
+                Type.INT_TYPE.equals(type) || Type.LONG_TYPE.equals(type) || Type.FLOAT_TYPE.equals(type) ||
+                Type.DOUBLE_TYPE.equals(type) || Type.CHAR_TYPE.equals(type) || Type.BOOLEAN_TYPE.equals(type);
+
+    }
 }

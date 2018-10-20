@@ -56,7 +56,7 @@ public class DependencyManager {
         final ClassDependencyVisitor dcv = new ClassDependencyVisitor();
         cr.accept(dcv, ClassReader.SKIP_DEBUG);
 
-        return dcv.getDependencies();
+        return new HashSet<>(dcv.getDependencies());
     }
 
     private static byte[] readFully(final InputStream inputStream) throws IOException {
