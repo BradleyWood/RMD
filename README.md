@@ -3,16 +3,25 @@
 ## Introduction
 
 Remote Method Delegation provides an implementation of RPC that performs
-code migration at runtime.
+code migration at runtime. RMD currently supports both synchronous and asynchronous
+delegates.
 
 
 ## Project Layout
 
-- []()
+- [rmd-client](/rmd-client/src/main/java/net/uoit/rmd) - the client side delegate implementation
+- [rmd-comm](/rmd-comm/src/main/java/net/uoit/rmd) - the communication layer
+- [rmd-examples](/rmd-examples) - examples in both java and Kotlin
+- [rmd-jobserver](/rmd-jobserver/src/main/java/net/uoit/rmd) - the server responsible for executing jobs
+- [rmd-kotlin](/rmd-kotlin/src/main/kotlin/net/uoit/rmd) - kotlin client module with dsl
 
 ## Java Support
 
-
+Currently, to delegate execution to a remote server you must use
+either a method reference or a lambda expression to define the
+code that you wish to execute remotely. Consumers, Producers, and Functions
+with up to 4 parameters can be delegated with type safety. Code can
+easily be executed asynchronously by providing a callback.
 
 ### Synchronous delegates in java
 
@@ -42,6 +51,15 @@ delegate((a, b) -> a * b, 5, 9, n -> {
 
 ### Kotlin Support
 
+A very simple kotlin dsl has been implemented to simplify your
+programs and provide syntactic sugar. For example, code inside
+a 'delegate' block will run on a remote job server in a blocking manor.
+
+To achieve asynchronous code execution, code is played inside an
+'async' block. Immediately following the 'async' block, you can
+optionally place a 'callback' block which will run locally when
+execution is complete. The callback returns the result from
+the async block.
 
 #### Synchronous delegates in kotlin
 ```kotlin
