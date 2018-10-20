@@ -7,5 +7,5 @@ import lombok.EqualsAndHashCode;
 public @Data class JobRequest extends Request {
 
     private final int methodHash;
-    private final Object[] arguments;
+    private final byte[] arguments;
 }

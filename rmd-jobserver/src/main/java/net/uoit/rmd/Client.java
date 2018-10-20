@@ -4,19 +4,26 @@ import net.uoit.rmd.messages.JobRequest;
 import net.uoit.rmd.messages.JobResponse;
 import net.uoit.rmd.messages.MigrationRequest;
 import net.uoit.rmd.messages.Response;
+import org.nustaq.serialization.FSTConfiguration;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Client {
 
+    private final FSTConfiguration conf = FSTConfiguration.createDefaultConfiguration();
+    private final RemoteClassLoader classLoader = new RemoteClassLoader();
     private final Map<Integer, Method> methodMap = new HashMap<>();
 
     public Response handleMigrationRequest(final MigrationRequest request) {
         final Map<String, byte[]> classes = request.getClassMap();
-        final RemoteClassLoader classLoader = new RemoteClassLoader();
+        conf.setClassLoader(classLoader);
+
+        System.out.println(request);
 
         Response response;
 
@@ -50,11 +57,18 @@ public class Client {
             response = new JobResponse(new NoSuchMethodException("Method hash: " + jobRequest.getMethodHash()));
         } else {
             try {
-                final Object result = method.invoke(null, jobRequest.getArguments());
+                Object[] args = (Object[]) conf.asObject(jobRequest.getArguments());
+                final Object instance = Modifier.isStatic(method.getModifiers()) ? null : args[0];
+
+                if (instance != null)
+                    args = Arrays.copyOfRange(args, 1, args.length);
+
+                final Object result = method.invoke(instance, args);
 
                 response = new JobResponse(result);
             } catch (IllegalAccessException | InvocationTargetException e) {
                 response = new JobResponse(e);
+                e.printStackTrace();
             }
         }
 

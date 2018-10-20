@@ -5,6 +5,7 @@ import net.uoit.rmd.delegate.*;
 import net.uoit.rmd.messages.JobRequest;
 import net.uoit.rmd.messages.JobResponse;
 import net.uoit.rmd.messages.MigrationRequest;
+import org.nustaq.serialization.FSTConfiguration;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -20,7 +21,8 @@ import java.util.concurrent.Executors;
 public class Rmd {
 
     private static final Map<Object, Serializable> delegateMap = Collections.synchronizedMap(new HashMap<>());
-    private static final Set<Class> remoteClasses = Collections.synchronizedSet(new HashSet<>());
+    private static final FSTConfiguration conf = FSTConfiguration.createDefaultConfiguration();
+    private static final Set<String> classes = Collections.synchronizedSet(new HashSet<>());
     private static final ExecutorService executorService = Executors.newCachedThreadPool();
     private static final String SERVER_ADDRESS = "localhost";
     private static final int SERVER_PORT = 5050;
@@ -38,10 +40,17 @@ public class Rmd {
     }
 
     private static void migrate(final DelegateInfo info) throws IOException {
-        if (!remoteClasses.contains(info.getDefiningClass())) {
-            final MigrationRequest mr = new MigrationRequest(DependencyManager.getDependencies(info.getDefiningClass()));
+        if (!classes.contains(info.getDefiningClass().getName())) {
+            final Map<String, byte[]> deps = DependencyManager.getDependencies(info.getDefiningClass());
+
+            for (final String aClass : classes) {
+                deps.remove(aClass);
+            }
+
+            classes.addAll(deps.keySet());
+
+            final MigrationRequest mr = new MigrationRequest(deps);
             connection.send(mr);
-            remoteClasses.add(info.getDefiningClass());
         }
     }
 
@@ -58,7 +67,8 @@ public class Rmd {
                 connect();
                 migrate(info);
 
-                final JobResponse response = connection.send(new JobRequest(info.getMethodHash(), array));
+                final byte[] args = conf.asByteArray(array);
+                final JobResponse response = connection.send(new JobRequest(info.getMethodHash(), args));
                 final Throwable exception = response.getException();
 
                 if (exception instanceof InvocationTargetException) {
