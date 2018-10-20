@@ -1,7 +1,9 @@
 target/
-.iml
+*.iml
 .idea/
-.aux
-.log
-.pdf
+*.aux
+*.log
+*.pdf
 *.png
+*.ipr
+*.iws
