@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public @Data class JobRequest extends Request {
 
-    private final int methodHash;
+    private final String className;
+    private final int methodIdx;
     private final byte[] arguments;
 }

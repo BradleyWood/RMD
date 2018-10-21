@@ -17,13 +17,11 @@ public class Client {
 
     private final FSTConfiguration conf = FSTConfiguration.createDefaultConfiguration();
     private final RemoteClassLoader classLoader = new RemoteClassLoader();
-    private final Map<Integer, Method> methodMap = new HashMap<>();
+    private final Map<String, Method[]> methodMap = new HashMap<>();
 
     public Response handleMigrationRequest(final MigrationRequest request) {
         final Map<String, byte[]> classes = request.getClassMap();
         conf.setClassLoader(classLoader);
-
-        System.out.println(request);
 
         Response response;
 
@@ -34,11 +32,13 @@ public class Client {
 
             for (final Map.Entry<String, byte[]> set : classes.entrySet()) {
                 final Class cl = classLoader.loadClass(set.getKey());
+                final Method[] methods = cl.getDeclaredMethods();
 
-                for (final Method method : cl.getDeclaredMethods()) {
+                for (Method method : methods) {
                     method.setAccessible(true);
-                    methodMap.put(method.hashCode(), method);
                 }
+
+                methodMap.put(set.getKey(), methods);
             }
 
             response = new Response(true, "Success");
@@ -50,13 +50,16 @@ public class Client {
     }
 
     public JobResponse handleJobRequest(final JobRequest jobRequest) {
-        final Method method = methodMap.get(jobRequest.getMethodHash());
+        final Method[] methods = methodMap.get(jobRequest.getClassName());
         JobResponse response;
 
-        if (method == null) {
-            response = new JobResponse(new NoSuchMethodException("Method hash: " + jobRequest.getMethodHash()));
+        if (methods == null) {
+            response = new JobResponse(new ClassNotFoundException(jobRequest.getClassName()));
+        } else if (jobRequest.getMethodIdx() >= methods.length || jobRequest.getMethodIdx() < 0) {
+            response = new JobResponse(new IndexOutOfBoundsException(String.valueOf(jobRequest.getMethodIdx())));
         } else {
             try {
+                final Method method = methods[jobRequest.getMethodIdx()];
                 Object[] args = (Object[]) conf.asObject(jobRequest.getArguments());
                 final Object instance = Modifier.isStatic(method.getModifiers()) ? null : args[0];
 

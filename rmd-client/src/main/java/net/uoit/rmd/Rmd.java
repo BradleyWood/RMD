@@ -75,7 +75,9 @@ public class Rmd {
                 migrate(info);
 
                 final byte[] args = conf.asByteArray(array);
-                final JobResponse response = connection.send(new JobRequest(info.getMethodHash(), args));
+                final JobResponse response = connection.send(new JobRequest(info.getDefiningClass().getName(),
+                        info.getIdx(), args));
+
                 final Throwable exception = response.getException();
 
                 if (exception instanceof InvocationTargetException) {
