@@ -1,0 +1,12 @@
+@startuml
+
+(*) --> "Send Job Request"
+    --> if "Lost Connection" then
+    -left->[true] "Send Job Request"
+
+else
+    -->[false] (*)
+endif
+
+
+@enduml

@@ -1,11 +1,11 @@
 @startuml
 
 (*) --> if "server has code" then
-    -->[true] "Form dependency graph"
+    -->[false] "Form dependency graph"
     --> "Send class + dependencies"
     -right->(*)
 else
-    -->[false] (*)
+    -->[true] (*)
 endif
 
 

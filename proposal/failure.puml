@@ -1,0 +1,11 @@
+@startuml
+
+(*) --> if "job server available" then
+    -->[false] "Execute job locally"
+    -left->(*)
+else
+    -->[true] "Send job request"
+    -right-> (*)
+endif
+
+@enduml
