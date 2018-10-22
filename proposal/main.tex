@@ -1,18 +1,22 @@
-\documentclass[10pt, oneside,english]{article}
+\documentclass[12pt, oneside,english]{article}
 \usepackage{geometry}
 \geometry{a4paper}
+\usepackage{float}
 \usepackage[english]{babel}
 \selectlanguage{english}
 \usepackage[utf8]{inputenc}
 
 \usepackage{graphicx}
-
+\usepackage{subcaption}
 \usepackage{amssymb}
 \usepackage{authblk}
 
 
 \title{A Load Balanced Distributed Computing Platform with Code Migration}
-\author[]{Bradley Wood}
+\author[1]{Bradley Wood}
+\author[2]{Zachary Winn}
+\author[3]{Brock Watling}
+\author[4]{Daniel Messiha}
 \affil[ ]{University of Ontario Institute of Technology}
 \renewcommand\Authands{, }
 \date{}
@@ -24,8 +28,8 @@
 
     Systems like Java RMI (Remote Method Invocation) allow developers to distribute
     workload across a network.
-    However, systems like RMI require extensive setup on the server side which does
-    not facilitate code migration.
+    However, systems like RMI require extensive setup on the server side do facilitate
+    code migration but c...
     If the client wants to execute load balanced jobs across many machines
     a simple migration process could shield the developer from a client-server
     architecture and simplify the project setup.
@@ -35,21 +39,20 @@
     \section{Objectives}\label{sec:objectives}
 
     \begin{itemize}
-        \item Simplify distributed workloads on the JVM with code migration
-        \item Provide load balancing across several machines
-        \item Record and catalogue job results and statistics
-        \item Synchronous and asynchronous job requests
+        \item To streamline distributed workloads on the JVM
+        \item To provide load balancing across several machines
+        \item To allow clients to donate computing resources
+        \item To provide synchronous and asynchronous job requests
     \end{itemize}
 
     \section{Architecture}\label{sec:architecture}
 
-    \subsection{Code Migration}\label{migration}
+    \subsection{Code Migration}\label{subsec:migration}
 
     Inorder to execute instructions a remote server, we must perform a migration action
     upon the function's first invocation.
 
-
-    \begin{figure}
+    \begin{figure}[H]
         \centering
         \includegraphics[scale=0.5]{migration.png}
         \caption{The migration process}
@@ -57,14 +60,62 @@
 
     \subsection{Load Balancing}\label{subsec:balancing}
 
-    The load balancer should act as a middle-man between the client and the server
+The load balancer should act as a middle-man between the client and the server
     and the client should not know the difference between communication with
     the load balancer or with a job server.
 
-    \begin{figure}
+
+    \begin{figure}[H]
         \centering
         \includegraphics[scale=0.5]{balancing.png}
         \caption{Interaction between entities}
     \end{figure}
+
+    To balance a set of tasks we choose one of the following techniques:
+
+    \begin{itemize}
+        \item[--] Round robin
+        \item[--] Lowest CPU usage first
+    \end{itemize}
+
+    A round robin job scheduler would be the easiest scheme to implement, however
+    it comes with a few pitfalls.
+    For example, in a round robin system, computers with weaker performance could
+    become over utilized where as powerful computers could become underutilized.
+    The algorithm would also not be abel to distinguish from short or long jobs
+    causing the efficiency of the computing network to be unpredictable.
+    A scheduling algorithm that prioritizes job servers based on the CPU usage
+    is more ideal.
+    However, this system is likely to have some degree of inaccuracy due to network
+    latency.
+
+    \subsubsection{Distributed Transparency}
+
+In some cases, the system could fail due to a variety of reasons including
+    network and system failure or even a lack of servers to process the job.
+    In these events, failure and recovery should be hidden from the client
+    by making use of the following protocols.
+
+    \begin{figure}[H]
+        \begin{subfigure}{.5\textwidth}
+            \centering
+            \includegraphics[scale=0.7]{failure.png}
+            \caption{No Resources Protocol}
+        \end{subfigure}
+        \begin{subfigure}{.5\textwidth}
+            \centering
+            \includegraphics[scale=0.5]{disconnect.png}
+            \caption{Connection Lost Protocol}
+        \end{subfigure}
+    \end{figure}
+
+    In the event that a user's job throws an exception, the server will return
+    the exception information including it's detail message and stack trace.
+    The client would sanitize the stack trace and then throw the exception
+    in an attempt to make it look like the instructions had always been
+    executing locally.
+
+    \subsection{Use Cases}\label{subsec:useCases}
+
 
 \end{document}
