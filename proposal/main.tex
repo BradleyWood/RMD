@@ -33,7 +33,7 @@ commentstyle={\color{gray}\ttfamily},
 emph={delegate, filter, first, firstOrNull, forEach, lazy, map, mapNotNull, println, return@},
 emphstyle={\color{OrangeRed}},
 identifierstyle=\color{black},
-keywords={abstract, actual, as, as?, break, by, class, companion, continue, data, do, dynamic, else, enum, expect, false, final, for, fun, get, if, import, in, interface, internal, is, null, object, override, package, private, public, return, set, super, suspend, this, throw, true, try, typealias, val, var, vararg, when, where, while},
+keywords={abstract, actual, async, callback, delegate, as, as?, break, by, class, companion, continue, data, do, dynamic, else, enum, expect, false, final, for, fun, get, if, import, in, interface, internal, is, null, object, override, package, private, public, return, set, super, suspend, this, throw, true, try, typealias, val, var, vararg, when, where, while},
 keywordstyle={\color{NavyBlue}\bfseries},
 morecomment=[s]{/*}{*/},
 morestring=[b]",
@@ -66,31 +66,71 @@ tabsize=3
 
     \section{Overview}\label{sec:overview}
 
-    Systems like Java RMI (Remote Method Invocation) allow developers to distribute
-    workload across a network.
-    However, systems like RMI require extensive setup on the server side do facilitate
-    code migration but c...
-    If the client wants to execute load balanced jobs across many machines
-    a simple migration process could shield the developer from a client-server
-    architecture and simplify the project setup.
-    Java RMI also has other design limitations that prevent the client from execution static
-    methods because they cannot be defined in an interface.
+    Today, it is a challenging task to build secured,
+    simple and efficient distributed systems.
+    Often times, researchers are tasked with solve highly
+    parallelizable problems that are too tough to be solved
+    by a single machine. Existing systems have high barriers
+    of entry, which require a complicated setup process.
+    In this project, we aim to improve upon RPC systems
+    by facilitating load balancing with code migration
+    in cluster computing applications.
+    Some existing RPC systems may implement code migration,
+    but they do not provide any load balancing capabilities
+    and Java RMI has design limitations that prevent the
+    client from execution static methods because they cannot
+    be defined in the interface.
+    Our goal is to eliminate the barriers of entry to
+    solving large scale distributed problems and to provide
+    clients with limited programming experience the opportunity
+    to parallelize large tasks over a network.
 
     \section{Objectives}\label{sec:objectives}
 
     \begin{itemize}
-        \item To streamline distributed workloads on the JVM
-        \item To provide load balancing across several machines
-        \item To allow clients to donate computing resources
-        \item To provide synchronous and asynchronous job requests
+        \item[--] To streamline distributed workloads on the JVM
+        \item[--] To provide load balancing across several machines
+        \item[--] To allow clients to donate computing resources
+        \item[--] To provide synchronous and asynchronous job requests
     \end{itemize}
+
+    \section{Use Cases}\label{sec:useCases}
+
+    \subsection{Cluster Computing}
+
+    Cluster computing is a single logic unit connected with multiple
+    computers that work together to maximize computing power.
+    Cluster computing is effective when dealing with very difficult
+    problems where a single processor is not adequate. Reasearchers could
+    use the proposed system to find new prime numbers as this is a
+    task which needs a vast amount of computing power to accomplish.
+    Cluster computing has many advantages that we would like to mention.
+    For example, Cost efficiency, processing speed, improved network
+    infrastructure and high availability of resources.
+
+    \subsection{Resource Sharing}
+
+    The system should allow users the ability to share their
+    resources for use through the network. This will give the
+    users more freedom and flexibility to access the functionalities
+    of the system. This functionality will benefit researchers as
+    it gives them the ability to do what they desire by retrieving
+    some resources that they could not obtain individual.
+    Supports who donate resources could be compensated with a reward
+    and such a system could help to build a thriving community.
+    Supporters will also provided with a security guarantee against
+    any malicious activity because the job requests will be executed
+    with a strict security policy.
 
     \section{Architecture}\label{sec:architecture}
 
     \subsection{Code Migration}\label{subsec:migration}
 
     Inorder to execute instructions a remote server, we must perform a migration action
-    upon the function's first invocation.
+    upon the function's first invocation. To do this, we must form a dependency graph
+    by traversing each class file to determine all dependencies that are referenced by the class.
+    This action provides a guarantees that the server will have all the necessary resources
+    to execute the job.
 
     \begin{figure}[H]
         \centering
@@ -131,7 +171,7 @@ tabsize=3
 
     \subsubsection{Distributed Transparency}
 
-In some cases, the system could fail due to a variety of reasons including
+    In some cases, the system could fail due to a variety of reasons including
     network and system failure or even a lack of servers to process the job.
     In these events, failure and recovery should be hidden from the client
     by making use of the following protocols.
@@ -155,8 +195,6 @@ In some cases, the system could fail due to a variety of reasons including
     in an attempt to make it look like the instructions had always been
     executing locally.
 
-    \subsection{Use Cases}\label{subsec:useCases}
-
 
     \subsection{Proposed Usage}\label{subsec:proposageUsage}
     In theory, the system should be viable for any JVM language, and not just java.
@@ -167,10 +205,14 @@ In some cases, the system could fail due to a variety of reasons including
 
     Regardless of the language, code that is to be executed on a remote job
     server will be denoted with a method reference or lambda expression.
-    It is important to note using this technique because it allows the developer
-    to maintain static type safety.
+    This is an important implementation detail because this technique allows
+    the developer to maintain static type safety.
 
     \subsubsection{Synchronous Java Example}
+
+    In this example, the function 'factorial' executed with an input of 6
+    in a blocking manor. A method reference is used to tell the system what
+    code is to be executed.
 
     \begin{lstlisting}
         System.out.println("6! " + delegate(Function::factorial, 6));
