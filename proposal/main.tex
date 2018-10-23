@@ -126,10 +126,10 @@ tabsize=3
 
     \subsection{Code Migration}\label{subsec:migration}
 
-    Inorder to execute instructions a remote server, we must perform a migration action
+    Inorder to execute instructions on a remote server, we must perform a migration action
     upon the function's first invocation. To do this, we must form a dependency graph
     by traversing each class file to determine all dependencies that are referenced by the class.
-    This action provides a guarantees that the server will have all the necessary resources
+    This action guarantees that the server will have all the necessary resources
     to execute the job.
 
     \begin{figure}[H]
@@ -141,8 +141,8 @@ tabsize=3
     \subsection{Load Balancing}\label{subsec:balancing}
 
     The load balancer should act as a middle-man between the client and the server
-    and the client should not know the difference between communication with
-    the load balancer or with a job server.
+    and the client should not know the difference between communicating with
+    a load balancer or with a job server.
 
 
     \begin{figure}[H]
