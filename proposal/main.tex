@@ -2,6 +2,8 @@
 \usepackage{geometry}
 \geometry{a4paper}
 \usepackage{float}
+\usepackage{listings}
+\usepackage{color}
 \usepackage[english]{babel}
 \selectlanguage{english}
 \usepackage[utf8]{inputenc}
@@ -20,6 +22,44 @@
 \affil[ ]{University of Ontario Institute of Technology}
 \renewcommand\Authands{, }
 \date{}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstdefinelanguage{Kotlin}{
+comment=[l]{//},
+commentstyle={\color{gray}\ttfamily},
+emph={delegate, filter, first, firstOrNull, forEach, lazy, map, mapNotNull, println, return@},
+emphstyle={\color{OrangeRed}},
+identifierstyle=\color{black},
+keywords={abstract, actual, as, as?, break, by, class, companion, continue, data, do, dynamic, else, enum, expect, false, final, for, fun, get, if, import, in, interface, internal, is, null, object, override, package, private, public, return, set, super, suspend, this, throw, true, try, typealias, val, var, vararg, when, where, while},
+keywordstyle={\color{NavyBlue}\bfseries},
+morecomment=[s]{/*}{*/},
+morestring=[b]",
+morestring=[s]{"""*}{*"""},
+ndkeywords={@Deprecated, @JvmField, @JvmName, @JvmOverloads, @JvmStatic, @JvmSynthetic, Array, Byte, Double, Float, Int, Integer, Iterable, Long, Runnable, Short, String},
+ndkeywordstyle={\color{BurntOrange}\bfseries},
+sensitive=true,
+stringstyle={\color{ForestGreen}\ttfamily},
+}
+
+\lstset{frame=tb,
+language=Kotlin,
+aboveskip=3mm,
+belowskip=3mm,
+showstringspaces=false,
+columns=flexible,
+basicstyle={\small\ttfamily},
+numbers=none,
+numberstyle=\tiny\color{gray},
+keywordstyle=\color{blue},
+commentstyle=\color{dkgreen},
+stringstyle=\color{mauve},
+breaklines=true,
+breakatwhitespace=true,
+tabsize=3
+}
 
 \begin{document}
     \maketitle
@@ -60,7 +100,7 @@
 
     \subsection{Load Balancing}\label{subsec:balancing}
 
-The load balancer should act as a middle-man between the client and the server
+    The load balancer should act as a middle-man between the client and the server
     and the client should not know the difference between communication with
     the load balancer or with a job server.
 
@@ -117,5 +157,69 @@ In some cases, the system could fail due to a variety of reasons including
 
     \subsection{Use Cases}\label{subsec:useCases}
 
+
+    \subsection{Proposed Usage}\label{subsec:proposageUsage}
+    In theory, the system should be viable for any JVM language, and not just java.
+    We plan to officially support the Java and Kotlin programming languages.
+    Since the main objective of this project is to simplify the implementation
+    of distributed software over a network, we have provided a few proposed
+    examples to demonstrate both synchronous and asynchronous job execution.
+
+    Regardless of the language, code that is to be executed on a remote job
+    server will be denoted with a method reference or lambda expression.
+    It is important to note using this technique because it allows the developer
+    to maintain static type safety.
+
+    \subsubsection{Synchronous Java Example}
+
+    \begin{lstlisting}
+        System.out.println("6! " + delegate(Function::factorial, 6));
+    \end{lstlisting}
+
+    \subsubsection{Asynchronous Java Example}
+
+    In this code snippet, the main calculation is done asynchronously
+    by the server and the client does not block while waiting for the reply.
+    the client is then free to do other tasks while the server completes the job.
+
+    \begin{lstlisting}
+        delegate((a, b) -> a * b, 5, 9, n -> {
+            System.out.println("5 * 9 = " + n); // the callback
+        });
+    \end{lstlisting}
+
+    \subsubsection{Synchronous Kotlin Example}
+
+    Since Kotlin has extremely expressive syntax, a function which accepts a
+    lambda expression can be written as a block with a body. For example, code
+    in the delegate block would be executed remotely in a blocking manor.
+
+    \begin{lstlisting}
+        val a = 100
+        val b = 200
+
+        val result = delegate {
+            a * b // blocking execution on remote server
+        }
+
+        println("$a * $b = $result")
+    \end{lstlisting}
+
+    \subsubsection{Asynchronous Kotlin Example}
+
+    To execute an asynchronous job, the programmer can define code within an
+    'async' block and optionally provide a 'callback' block to aquire the result.
+
+    \begin{lstlisting}
+        val a = 100
+        val b = 200
+
+        async {
+            a * b // execute asynchrnously on job server
+        } callback {
+            println("$a * $b = $it") // disply result locally
+        }
+
+    \end{lstlisting}
 
 \end{document}
