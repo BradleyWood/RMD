@@ -1,0 +1,7 @@
+config {
+    hosts: {
+        "localhost"
+    }
+    errorStrategy: "THROW_EXCEPTION"
+    port: 7070
+}
