@@ -9,7 +9,6 @@
     </parent>
 
     <artifactId>rmd-kotlin</artifactId>
-    <version>1.0-SNAPSHOT</version>
 
     <name>rmd-kotlin</name>
 
@@ -24,12 +23,13 @@
         <dependency>
             <groupId>net.uoit.rmd</groupId>
             <artifactId>rmd-client</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib</artifactId>
             <version>${kotlin.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

@@ -9,7 +9,6 @@
     </parent>
 
     <artifactId>kotlin-example</artifactId>
-    <version>1.0-SNAPSHOT</version>
 
     <name>kotlin-example</name>
 
@@ -23,7 +22,7 @@
         <dependency>
             <groupId>net.uoit.rmd</groupId>
             <artifactId>rmd-kotlin</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
