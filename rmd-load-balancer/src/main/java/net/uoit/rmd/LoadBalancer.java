@@ -150,12 +150,10 @@ public class LoadBalancer implements Runnable, ConnectionListener, MessageListen
 
     @Override
     public void connected(final Connection connection) {
-        System.out.println("Connected");
     }
 
     @Override
     public void disconnected(final Connection connection) {
-        System.out.println("Disconnected");
         synchronized (jobServers) {
             jobServers.removeIf(p -> p.getConnection() == connection);
         }
