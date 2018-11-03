@@ -17,8 +17,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 @SuppressWarnings("unchecked")
 public class Rmd {
@@ -27,6 +29,7 @@ public class Rmd {
     private static final FSTConfiguration conf = FSTConfiguration.createDefaultConfiguration();
     private static final Set<String> classes = Collections.synchronizedSet(new HashSet<>());
     private static final ExecutorService executorService = Executors.newCachedThreadPool();
+    private static final List<Future> asyncJobs = Collections.synchronizedList(new LinkedList<>());
     private static RmdConfig config = RmdConfig.DEFAULT;
     private static LoadBalancer balancer;
 
@@ -52,6 +55,12 @@ public class Rmd {
 
         balancer = new LoadBalancer(config);
         balancer.init();
+    }
+
+    public static void waitForAsyncJobs() throws ExecutionException, InterruptedException {
+        while (!asyncJobs.isEmpty()) {
+            asyncJobs.remove(0).get();
+        }
     }
 
     public static void addHost(final String host) {
@@ -261,41 +270,41 @@ public class Rmd {
     }
 
     public static <R> void delegate(final ProducerDelegate<R> delegate, final Callback<R> callback) {
-        executorService.submit(() -> {
+        asyncJobs.add(executorService.submit(() -> {
             final R result = delegate(delegate);
 
             if (callback != null)
                 callback.accept(result);
-        });
+        }));
     }
 
     public static <T, R> void delegate(final FunctionDelegate<T, R> delegate, final T t, final Callback<R> callback) {
-        executorService.submit(() -> {
+        asyncJobs.add(executorService.submit(() -> {
             final R result = delegate(delegate, t);
 
             if (callback != null)
                 callback.accept(result);
-        });
+        }));
     }
 
     public static <T, U, R> void delegate(final BiFunctionDelegate<T, U, R> delegate, final T t, final U u,
                                           final Callback<R> callback) {
-        executorService.submit(() -> {
+        asyncJobs.add(executorService.submit(() -> {
             final R result = delegate(delegate, t, u);
 
             if (callback != null)
                 callback.accept(result);
-        });
+        }));
     }
 
     public static <T, U, V, R> void delegate(final TriFunctionDelegate<T, U, V, R> delegate, final T t, final U u,
                                              final V v, final Callback<R> callback) {
-        executorService.submit(() -> {
+        asyncJobs.add(executorService.submit(() -> {
             final R result = delegate(delegate, t, u, v);
 
             if (callback != null)
                 callback.accept(result);
-        });
+        }));
     }
 
     private static DelegateInfo getDelegateInfo(final Serializable methodReference) {
