@@ -12,8 +12,10 @@ import net.uoit.rmd.messages.*;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class LoadBalancer implements Runnable, ConnectionListener, MessageListener {
 
@@ -105,38 +107,44 @@ public class LoadBalancer implements Runnable, ConnectionListener, MessageListen
                 }
             }
 
-            boolean error = false;
+            final LinkedList<Future> tasks = new LinkedList<>();
 
             for (final String host : hosts) {
-                try {
-                    String address = host;
-                    int port = RmdConfig.DEFAULT_JOB_SERVER_PORT;
+                tasks.add(executorService.submit(() -> {
+                    try {
+                        String address = host;
+                        int port = RmdConfig.DEFAULT_JOB_SERVER_PORT;
 
-                    String[] addressPortSplit = host.split(":");
+                        String[] addressPortSplit = host.split(":");
 
-                    if (addressPortSplit.length == 2) {
-                        address = addressPortSplit[0];
-                        port = Integer.parseInt(addressPortSplit[1]);
+                        if (addressPortSplit.length == 2) {
+                            address = addressPortSplit[0];
+                            port = Integer.parseInt(addressPortSplit[1]);
+                        }
+
+                        final Connection connection = new Connection(new Socket(address, port));
+                        connection.addConnectionListener(this);
+
+                        final JobServer jobServer = new JobServer(connection, host);
+
+                        synchronized (jobServers) {
+                            jobServers.add(jobServer);
+                            jobServers.notifyAll();
+                        }
+
+                        new Thread(connection).start();
+                    } catch (IOException e) {
+
                     }
-
-                    final Connection connection = new Connection(new Socket(address, port));
-                    connection.addConnectionListener(this);
-
-                    final JobServer jobServer = new JobServer(connection, host);
-
-                    synchronized (jobServers) {
-                        jobServers.add(jobServer);
-                        jobServers.notifyAll();
-                    }
-
-                    new Thread(connection).start();
-                } catch (IOException e) {
-                    error = true;
-                }
+                }));
             }
 
-            if (error) {
-                continue;
+            while (!tasks.isEmpty()) {
+                try {
+                    tasks.removeFirst().get();
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                }
             }
 
             synchronized (this) {
