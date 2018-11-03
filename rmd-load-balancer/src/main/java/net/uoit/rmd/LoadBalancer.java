@@ -12,9 +12,12 @@ import net.uoit.rmd.messages.*;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class LoadBalancer implements Runnable, ConnectionListener, MessageListener {
 
+    private final ExecutorService executorService = Executors.newCachedThreadPool();
     private final Map<String, byte[]> classMap = new HashMap<>();
     private final List<JobServer> jobServers;
     private final BalanceStrategy balanceStrategy;
@@ -30,7 +33,7 @@ public class LoadBalancer implements Runnable, ConnectionListener, MessageListen
     }
 
     public LoadBalancer(final ArrayList<JobServer> jobServers, final RmdConfig config) {
-        this(jobServers, new RoundRobinStrategy(jobServers), config);
+        this(jobServers, new RoundRobinStrategy(), config);
     }
 
     public LoadBalancer(final @NonNull List<JobServer> jobServers, final @NonNull BalanceStrategy balanceStrategy,
@@ -53,24 +56,40 @@ public class LoadBalancer implements Runnable, ConnectionListener, MessageListen
         }
     }
 
-    public void migrate(final Map<String, byte[]> classMap) {
+    public boolean migrate(final Map<String, byte[]> classMap) {
+        if (jobServers.isEmpty() && RmdConfig.THROW_ERROR_STRATEGY.equals(config.getErrorStrategy()))
+            throw new NoJobServerException("no server to migrate to");
+
+        if (jobServers.isEmpty() && RmdConfig.RUN_LOCAL_STRATEGY.equals(config.getErrorStrategy()))
+            return false;
+
+        while (jobServers.isEmpty()) {
+            synchronized (jobServers) {
+                try {
+                    jobServers.wait();
+                } catch (InterruptedException e) {
+                }
+            }
+        }
+
         synchronized (jobServers) {
             for (final JobServer jobServer : jobServers) {
                 jobServer.migrate(classMap);
             }
         }
+
+        return true;
     }
 
-    public JobResponse submit(final JobRequest jobRequest) {
+    public JobResponse submit(final JobRequest jobRequest) throws NoJobServerException {
         while (true) {
             try {
-                final JobServer server = balanceStrategy.next();
+                final JobServer server = balanceStrategy.next(jobServers);
                 migrate(classMap);
                 return server.submit(jobRequest);
+            } catch (IOException ignored) {
             } catch (NoJobServerException e) {
                 return new JobResponse(e);
-            } catch (IOException ignored) {
-                ignored.printStackTrace();
             }
         }
     }
@@ -78,34 +97,46 @@ public class LoadBalancer implements Runnable, ConnectionListener, MessageListen
     @Override
     public void run() {
         while (true) {
+            final Set<String> hosts = config.getHosts();
 
             synchronized (jobServers) {
-                final Set<String> hosts = config.getHosts();
-
                 for (final JobServer jobServer : jobServers) {
                     hosts.remove(jobServer.getHost());
                 }
+            }
 
-                boolean error = false;
+            boolean error = false;
 
-                for (final String host : hosts) {
-                    try {
-                        final Connection connection = new Connection(new Socket(host, 5050));
-                        connection.addConnectionListener(this);
+            for (final String host : hosts) {
+                try {
+                    String address = host;
+                    int port = RmdConfig.DEFAULT_JOB_SERVER_PORT;
 
-                        final JobServer jobServer = new JobServer(connection, host);
-                        jobServers.add(jobServer);
-                        System.out.println("Add job server");
+                    String[] addressPortSplit = host.split(":");
 
-                        new Thread(connection).start();
-                    } catch (IOException e) {
-                        error = true;
+                    if (addressPortSplit.length == 2) {
+                        address = addressPortSplit[0];
+                        port = Integer.parseInt(addressPortSplit[1]);
                     }
-                }
 
-                if (error) {
-                    continue;
+                    final Connection connection = new Connection(new Socket(address, port));
+                    connection.addConnectionListener(this);
+
+                    final JobServer jobServer = new JobServer(connection, host);
+
+                    synchronized (jobServers) {
+                        jobServers.add(jobServer);
+                        jobServers.notifyAll();
+                    }
+
+                    new Thread(connection).start();
+                } catch (IOException e) {
+                    error = true;
                 }
+            }
+
+            if (error) {
+                continue;
             }
 
             synchronized (this) {
@@ -141,7 +172,6 @@ public class LoadBalancer implements Runnable, ConnectionListener, MessageListen
 
     @Override
     public void requestReceived(final Connection connection, final Request request, final int rId) {
-        System.out.println(request);
         try {
             if (request instanceof MigrationRequest) {
                 classMap.putAll(((MigrationRequest) request).getClassMap());
@@ -149,15 +179,16 @@ public class LoadBalancer implements Runnable, ConnectionListener, MessageListen
                 final Response response = new Response(true, "Ok");
 
                 connection.send(response, rId);
-                System.out.println("Migration Response: " + response);
             } else if (request instanceof JobRequest) {
-                System.out.println("Submit job");
-                final JobResponse response = submit((JobRequest) request);
+                JobResponse response;
 
-                System.out.println("Job Response: " + response);
+                try {
+                    response = submit((JobRequest) request);
+                } catch (NoJobServerException e) {
+                    response = new JobResponse(e);
+                }
+
                 connection.send(response, rId);
-            } else {
-                System.err.println("wtfff?");
             }
         } catch (Exception e) {
             e.printStackTrace();

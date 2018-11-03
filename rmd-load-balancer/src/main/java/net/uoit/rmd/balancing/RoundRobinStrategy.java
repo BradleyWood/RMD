@@ -8,15 +8,10 @@ import java.util.List;
 
 public class RoundRobinStrategy implements BalanceStrategy {
 
-    private final List<JobServer> jobServers;
     private int idx = 0;
 
-    public RoundRobinStrategy(final @NonNull List<JobServer> jobServers) {
-        this.jobServers = jobServers;
-    }
-
     @Override
-    public JobServer next() throws NoJobServerException {
+    public JobServer next(final @NonNull List<JobServer> jobServers) throws NoJobServerException {
         synchronized (jobServers) {
             if (jobServers.isEmpty())
                 throw new NoJobServerException();

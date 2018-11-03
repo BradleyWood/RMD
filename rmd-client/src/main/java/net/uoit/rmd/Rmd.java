@@ -5,15 +5,17 @@ import net.uoit.rmd.asm.DependencyManager;
 import net.uoit.rmd.delegate.*;
 import net.uoit.rmd.messages.JobRequest;
 import net.uoit.rmd.messages.JobResponse;
-import net.uoit.rmd.messages.MigrationRequest;
+import org.nustaq.kson.Kson;
 import org.nustaq.serialization.FSTConfiguration;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.Socket;
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -25,20 +27,51 @@ public class Rmd {
     private static final FSTConfiguration conf = FSTConfiguration.createDefaultConfiguration();
     private static final Set<String> classes = Collections.synchronizedSet(new HashSet<>());
     private static final ExecutorService executorService = Executors.newCachedThreadPool();
-    private static final String SERVER_ADDRESS = "localhost";
-    private static final int SERVER_PORT = 5050;
-    private static Connection connection;
+    private static RmdConfig config = RmdConfig.DEFAULT;
+    private static LoadBalancer balancer;
 
-    @Synchronized
-    private static void connect() throws IOException {
-        if (connection == null || connection.getSocket().isClosed()) {
-            connection = new Connection(new Socket(SERVER_ADDRESS, SERVER_PORT));
-            new Thread(connection).start();
+    private static void init() {
+        Kson kson = new Kson().map("config", RmdConfig.class);
+
+        try {
+            final File configFile = new File("config.kson");
+
+            if (configFile.exists()) {
+                config = (RmdConfig) kson.readObject(new File("config.kson"));
+            } else {
+                final InputStream in = Object.class.getResourceAsStream("config.kson");
+                if (in != null) {
+                    config = (RmdConfig) kson.readObject(in, "UTF-8", null);
+                }
+            }
+        } catch (Exception e) {
+            sneakyThrow(e);
         }
+
+        config.verify();
+
+        balancer = new LoadBalancer(config);
+        balancer.init();
+    }
+
+    public static void addHost(final String host) {
+        if (balancer != null)
+            init();
+
+        config.addHost(host);
+        balancer.notifyAll();
+    }
+
+    public static void removeHost(final String host) {
+        if (balancer != null)
+            init();
+
+        config.removeHost(host);
+        balancer.notifyAll();
     }
 
     @Synchronized
-    private static void migrate(final DelegateInfo info) throws IOException {
+    private static boolean migrate(final DelegateInfo info) throws IOException {
         if (!classes.contains(info.getDefiningClass().getName())) {
             final Map<String, byte[]> deps = DependencyManager.getDependencies(info.getDefiningClass());
 
@@ -50,11 +83,12 @@ public class Rmd {
             classes.add(info.getDefiningClass().getName());
 
             if (deps.isEmpty())
-                return;
+                return true;
 
-            final MigrationRequest mr = new MigrationRequest(deps);
-            connection.send(mr);
+            return balancer.migrate(deps);
         }
+
+        return true;
     }
 
     private static <E extends Throwable> void sneakyThrow(final Throwable e) throws E {
@@ -62,39 +96,65 @@ public class Rmd {
     }
 
     private static Object invokeDelegate(final DelegateInfo info, final Object[] array) {
+        if (balancer == null) {
+            init();
+        }
+
         Throwable toThrow;
 
         while (true) {
             try {
-
-                // todo; revise disconnect protocol
-                // avoid infinite reconnect
-                // invoke locally after some time...
-
-                connect();
-                migrate(info);
+                if (!migrate(info) && RmdConfig.RUN_LOCAL_STRATEGY.equals(config.getErrorStrategy())) {
+                    return invokeLocally(info, array);
+                }
 
                 final byte[] args = conf.asByteArray(array);
-                final JobResponse response = connection.send(new JobRequest(info.getDefiningClass().getName(),
-                        info.getIdx(), args));
+
+                final JobRequest request = new JobRequest(info.getDefiningClass().getName(), info.getIdx(), args);
+                final JobResponse response = balancer.submit(request);
 
                 final Throwable exception = response.getException();
 
                 if (exception instanceof InvocationTargetException) {
                     toThrow = ((InvocationTargetException) exception).getTargetException();
                     break;
-                } else if (exception != null) {
+                } else if (exception instanceof NoJobServerException) {
+                    if (RmdConfig.RUN_LOCAL_STRATEGY.equals(config.getErrorStrategy())) {
+                        return invokeLocally(info, array);
+                    }
+                }
+                if (exception != null) {
                     toThrow = exception;
                     break;
                 }
 
                 return response.getResult();
             } catch (IOException ignored) {
+            } catch (NoJobServerException | IllegalAccessException e) {
+                toThrow = e;
+                break;
+            } catch (InvocationTargetException e) {
+                toThrow = e.getTargetException();
+                break;
             }
         }
 
         sneakyThrow(toThrow);
         return null;
+    }
+
+    private static Object invokeLocally(final DelegateInfo delegateInfo, final Object[] arguments)
+            throws InvocationTargetException, IllegalAccessException {
+        final Method method = delegateInfo.getDefiningClass().getMethods()[delegateInfo.getIdx()];
+        method.setAccessible(true);
+
+        Object[] args = arguments;
+        final Object instance = Modifier.isStatic(method.getModifiers()) ? null : args[0];
+
+        if (instance != null)
+            args = Arrays.copyOfRange(args, 1, args.length);
+
+        return method.invoke(instance, args);
     }
 
     public static FunctionDelegate asDelegate(final DelegateInfo delegate) {

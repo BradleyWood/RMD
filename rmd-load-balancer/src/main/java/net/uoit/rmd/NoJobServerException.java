@@ -4,7 +4,7 @@ package net.uoit.rmd;
  * Thrown to indicate that RMD could not connect
  * to any job server
  */
-public class NoJobServerException extends Throwable {
+public class NoJobServerException extends RuntimeException {
 
     public NoJobServerException() {
     }
