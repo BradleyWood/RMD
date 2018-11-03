@@ -39,7 +39,7 @@ public class ClassDependencyVisitor extends ClassVisitor {
     @Override
     public void visitOuterClass(String owner, String name, String desc) {
         dependencies.addInternalName(owner);
-        dependencies.addDesc(desc);
+        dependencies.addMethod(desc);
 
         super.visitOuterClass(owner, name, desc);
     }
