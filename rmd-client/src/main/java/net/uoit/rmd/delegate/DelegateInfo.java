@@ -4,6 +4,8 @@ import lombok.Data;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Comparator;
 
 /**
  * Represents callsite information for a delegate function
@@ -43,7 +45,10 @@ public @Data class DelegateInfo {
         boolean found = false;
         int i = 0;
 
-        for (final Method declaredMethod : definingClass.getDeclaredMethods()) {
+        final Method[] methods = definingClass.getDeclaredMethods();
+        Arrays.sort(methods, Comparator.comparing(Method::toString));
+
+        for (final Method declaredMethod : methods) {
             if (signature.equals(Type.getMethodDescriptor(declaredMethod))){
                 idx = i;
                 found = true;

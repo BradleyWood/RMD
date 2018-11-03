@@ -10,6 +10,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,6 +34,7 @@ public class Client {
             for (final Map.Entry<String, byte[]> set : classes.entrySet()) {
                 final Class cl = classLoader.loadClass(set.getKey());
                 final Method[] methods = cl.getDeclaredMethods();
+                Arrays.sort(methods, Comparator.comparing(Method::toString));
 
                 for (Method method : methods) {
                     method.setAccessible(true);
@@ -69,12 +71,13 @@ public class Client {
                 final Object result = method.invoke(instance, args);
 
                 response = new JobResponse(result);
-            } catch (IllegalAccessException | InvocationTargetException e) {
+            } catch (Exception e) {
                 response = new JobResponse(e);
                 e.printStackTrace();
             }
         }
 
+        System.out.println("Response: " + response);
         return response;
     }
 }
