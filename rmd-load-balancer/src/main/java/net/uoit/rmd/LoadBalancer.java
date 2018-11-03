@@ -141,7 +141,7 @@ public class LoadBalancer implements Runnable, ConnectionListener, MessageListen
 
             synchronized (this) {
                 try {
-                    wait();
+                    wait(1000);
                 } catch (InterruptedException ignored) {
                 }
             }
