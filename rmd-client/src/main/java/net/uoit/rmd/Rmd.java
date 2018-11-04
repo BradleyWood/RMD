@@ -33,7 +33,11 @@ public class Rmd {
     private static RmdConfig config = RmdConfig.DEFAULT;
     private static LoadBalancer balancer;
 
+    @Synchronized
     private static void init() {
+        if (balancer != null)
+            return;
+
         Kson kson = new Kson().map("config", RmdConfig.class);
 
         try {
@@ -80,24 +84,14 @@ public class Rmd {
     }
 
     @Synchronized
-    private static boolean migrate(final DelegateInfo info) throws IOException {
+    private static void mapClass(final DelegateInfo info) throws IOException {
         if (!classes.contains(info.getDefiningClass().getName())) {
             final Map<String, byte[]> deps = DependencyManager.getDependencies(info.getDefiningClass());
 
-            for (final String aClass : classes) {
-                deps.remove(aClass);
-            }
-
             classes.addAll(deps.keySet());
             classes.add(info.getDefiningClass().getName());
-
-            if (deps.isEmpty())
-                return true;
-
-            return balancer.migrate(deps);
+            balancer.addClassDefs(deps);
         }
-
-        return true;
     }
 
     private static <E extends Throwable> void sneakyThrow(final Throwable e) throws E {
@@ -113,9 +107,7 @@ public class Rmd {
 
         while (true) {
             try {
-                if (!migrate(info) && RmdConfig.RUN_LOCAL_STRATEGY.equals(config.getErrorStrategy())) {
-                    return invokeLocally(info, array);
-                }
+                mapClass(info);
 
                 final byte[] args = conf.asByteArray(array);
 
@@ -130,8 +122,11 @@ public class Rmd {
                 } else if (exception instanceof NoJobServerException) {
                     if (RmdConfig.RUN_LOCAL_STRATEGY.equals(config.getErrorStrategy())) {
                         return invokeLocally(info, array);
+                    } else if (RmdConfig.RETRY_STRATEGY.equals(config.getErrorStrategy())) {
+                        continue;
                     }
                 }
+
                 if (exception != null) {
                     toThrow = exception;
                     break;

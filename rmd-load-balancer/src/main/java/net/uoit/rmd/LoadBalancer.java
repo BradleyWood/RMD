@@ -58,6 +58,10 @@ public class LoadBalancer implements Runnable, ConnectionListener, MessageListen
         }
     }
 
+    public void addClassDefs(final Map<String, byte[]> classMap) {
+        this.classMap.putAll(classMap);
+    }
+
     public boolean migrate(final Map<String, byte[]> classMap) {
         if (jobServers.isEmpty() && RmdConfig.THROW_ERROR_STRATEGY.equals(config.getErrorStrategy()))
             throw new NoJobServerException("no server to migrate to");
@@ -83,7 +87,7 @@ public class LoadBalancer implements Runnable, ConnectionListener, MessageListen
         return true;
     }
 
-    public JobResponse submit(final JobRequest jobRequest) throws NoJobServerException {
+    public JobResponse submit(final JobRequest jobRequest) {
         while (true) {
             try {
                 final JobServer server = balanceStrategy.next(jobServers);
