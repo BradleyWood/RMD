@@ -19,7 +19,6 @@ public @Data class Connection implements Runnable {
 
     private final List<ConnectionListener> connectionListeners = new LinkedList<>();
     private final Map<Integer, Response> responses = Collections.synchronizedMap(new HashMap<>());
-    private final Map<Integer, Thread> locks = Collections.synchronizedMap(new HashMap<>());
     private MessageListener messageListener;
 
     private static int counter = 0;
@@ -28,12 +27,14 @@ public @Data class Connection implements Runnable {
     private final DataInputStream dis;
     private final Socket socket;
 
+    private IOException exception;
     private boolean isRunning;
 
     public Connection(final Socket socket) throws IOException {
         this.socket = socket;
         this.dis = new DataInputStream(socket.getInputStream());
         this.dos = new DataOutputStream(socket.getOutputStream());
+        socket.setTcpNoDelay(true);
     }
 
     public <T extends Response> T send(final Request request) throws IOException {
@@ -41,19 +42,14 @@ public @Data class Connection implements Runnable {
 
         sendMessage(request, req);
 
-        final Thread thread = Thread.currentThread();
-        locks.put(req, thread);
-
         while (!responses.containsKey(req)) {
-            synchronized (thread) {
+            synchronized (this) {
                 try {
-                    thread.wait();
-                } catch (InterruptedException ignored) {
+                    wait();
+                } catch (InterruptedException e) {
                 }
             }
         }
-
-        locks.remove(req);
 
         return (T) responses.remove(req);
     }
@@ -132,10 +128,8 @@ public @Data class Connection implements Runnable {
                 if (obj instanceof Response) {
                     responses.put(rId, (Response) obj);
 
-                    final Thread thread = locks.get(rId);
-
-                    synchronized (thread) {
-                        thread.notifyAll();
+                    synchronized (this) {
+                        notifyAll();
                     }
 
                     continue;
@@ -156,6 +150,7 @@ public @Data class Connection implements Runnable {
                 }
             } catch (IOException e) {
                 isRunning = false;
+                exception = e;
             } catch (Throwable e) {
                 System.err.println("Internal Error");
             }
@@ -166,6 +161,10 @@ public @Data class Connection implements Runnable {
                 socket.close();
             } catch (IOException ignored) {
             }
+        }
+
+        synchronized (this) {
+            notifyAll();
         }
 
         connectionListeners.forEach(l -> l.disconnected(this));
