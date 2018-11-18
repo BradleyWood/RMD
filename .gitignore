@@ -1,4 +1,6 @@
 target/
+out/
+auxil/
 *.iml
 .idea/
 *.aux
