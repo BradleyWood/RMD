@@ -1,0 +1,37 @@
+\section{IMPLEMENTATION}\label{sec:impl}
+
+The project has been implemented on the Java Virtual Machine with a modular design allowing for
+a separation of concerns.
+In total, there are 5 modules including the load balancer, job server, the main client,
+the Kotlin client (Kotlin DSL support), and the communications module.
+Each module is responsible for one specific job, and they collectively work together.
+
+\subsection{Load Balancer}\label{subsec:modules}
+
+The load balancer has the important job of managing the use of resources
+on the computing network.
+This module depends upon the communication module to handle all network IO
+between clients and job servers.
+The load balancer accepts connections from clients and forwards their job
+request based on resource availability.
+It also also clients to self describe as a job server in order to allow for
+resource donation.
+To balance the computing load across several job servers, a round-robin
+scheduling algorithm is provided as the default scheduling algorithm.
+Advanced users can write and use their own scheduling algorithms via dependency
+injection.
+After a client initialized a connection, it must first send a migration request
+to the load balancer before sending any job requests.
+This protocol acts the same as direct communication between a client and server,
+therefore the client does not need to distinguish between a job server or load
+balancer.
+The load balancer must verify that a job server has the required
+code before forwarding a job request to the chosen server.
+This is a problem because of the one-to-many relationship between the client
+and job servers.
+To solve this problem, the load balancer stores a map between
+a JVM class name, and its bytecode instructions.
+It also records a list of each class file that the job server has so it can
+prevent migration of instructions that already exist on the job server.
+The migration process is lazy, and only occurs when a job request
+occurs to a server that has not seen the specific code before.
