@@ -10,6 +10,56 @@ that executes on top of the JVM, and not just Java.
 The implementation officially supports both the Java and Kotlin programming languages.
 
 \subsection{Client}\label{subsec:client}
+The Client module is responsible for determining the method call sites at runtime from their
+method reference, serializing classes and their dependencies, and performing the migration/job
+requests to either a server or load balancer.
+This module is dependent on both the communication module, and the load balancing module.
+The communications module is used for all networking.
+The load balancing module is also used on the client side to allow for use of multiple
+job servers without requiring an external load balancer to act as the middleman.
+
+To allow the user to maintain static type safety, method references and lambda expressions
+are used to specify the call site of the job that is to be executed remotely.
+The call site information is determined at runtime to avoid any sort of compiler
+bootstrapping.
+The call site information specifies the signature of a method, the method name, and it's location.
+This information is required to perform the code migration process.
+A function also may make use of any dependency, even if it is not defined as part of the Java
+runtime environment.
+These dependencies are determined by visiting all methods, fields, and instructions,
+defined in the class file using the ASM bytecode manipulation and generation framework.
+After the dependency graph is formed, the client is ready to perform a migration request.
+When an asynchronous job request is sent to a server, its handler is processed by the executor service
+(a lightweight thread-pool).
+
+\subsubsection{Synchronous Java Example}
+
+In this example, the function 'factorial' executed with an input of 6
+in a blocking manor.
+A method reference is used to tell the system what
+code is to be executed.
+
+\begin{lstlisting}
+    a = delegate(this::factorial, 6)
+    println("6! " + a);
+\end{lstlisting}
+
+\subsubsection{Asynchronous Java Example}
+
+In this code snippet, the main calculation is done asynchronously
+by the server and the client does not block while waiting for the reply.
+the client is then free to do other tasks while the server completes the job.
+Both the job and callback functions are defined via lambda expression, with
+the function parameters in the middle.
+
+\begin{lstlisting}
+delegate((a, b) -> a * b,
+    5, 9,
+    n -> {
+    // callback
+    println("5 * 9 = " + n);
+});
+\end{lstlisting}
 
 \subsection{Kotlin Client}\label{subsec:kotlinClient}
 The Kotlin client module servers to provide extended support to the Kotlin
@@ -22,8 +72,8 @@ The DSL is design to be extremely simple for users to understand.
 \subsubsection{Synchronous Kotlin Example}
 
 Since Kotlin has extremely expressive syntax, a function which accepts a
-lambda expression can be written as a block with a body. For example, code
-in the delegate block would be executed remotely in a blocking manor.
+lambda expression can be written as a block with a body.
+For example, code in the delegate block would be executed remotely in a blocking manor.
 
 \begin{lstlisting}
 val a = 100
