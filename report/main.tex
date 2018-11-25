@@ -4,15 +4,56 @@
 \overrideIEEEmargins
 
 % The following packages can be found on http:\\www.ctan.org
-%\usepackage{graphics} % for pdf, bitmapped graphics files
+\usepackage{graphics} % for pdf, bitmapped graphics files
 %\usepackage{epsfig} % for postscript graphics files
 %\usepackage{mathptmx} % assumes new font selection scheme installed
 %\usepackage{times} % assumes new font selection scheme installed
 %\usepackage{amsmath} % assumes amsmath package installed
 %\usepackage{amssymb}  % assumes amsmath package installed
+\usepackage{float}
+\usepackage{listings}
+\usepackage{color}
 
 \title{A Load Balanced Distributed Computing Platform with Code Migration}
 \author{Bradley Wood$^{1}$, Brock Watling$^{2}$, Zachary Winn$^{3}$, Daniel Messiha$^{4}$}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstdefinelanguage{Kotlin}{
+comment=[l]{//},
+commentstyle={\color{gray}\ttfamily},
+emph={delegate, filter, first, firstOrNull, forEach, lazy, map, mapNotNull, println, return@},
+emphstyle={\color{OrangeRed}},
+identifierstyle=\color{black},
+keywords={abstract, actual, async, callback, delegate, as, as?, break, by, class, companion, continue, data, do, dynamic, else, enum, expect, false, final, for, fun, get, if, import, in, interface, internal, is, null, object, override, package, private, public, return, set, super, suspend, this, throw, true, try, typealias, val, var, vararg, when, where, while},
+keywordstyle={\color{NavyBlue}\bfseries},
+morecomment=[s]{/*}{*/},
+morestring=[b]",
+morestring=[s]{"""*}{*"""},
+ndkeywords={@Deprecated, @JvmField, @JvmName, @JvmOverloads, @JvmStatic, @JvmSynthetic, Array, Byte, Double, Float, Int, Integer, Iterable, Long, Runnable, Short, String},
+ndkeywordstyle={\color{BurntOrange}\bfseries},
+sensitive=true,
+stringstyle={\color{ForestGreen}\ttfamily},
+}
+
+\lstset{frame=tb,
+language=Kotlin,
+aboveskip=3mm,
+belowskip=3mm,
+showstringspaces=false,
+columns=flexible,
+basicstyle={\small\ttfamily},
+numbers=none,
+numberstyle=\tiny\color{gray},
+keywordstyle=\color{blue},
+commentstyle=\color{dkgreen},
+stringstyle=\color{mauve},
+breaklines=true,
+breakatwhitespace=true,
+tabsize=3
+}
 
 \begin{document}
 

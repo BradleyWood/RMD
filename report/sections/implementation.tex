@@ -5,6 +5,56 @@ a separation of concerns.
 In total, there are 5 modules including the load balancer, job server, the main client,
 the Kotlin client (Kotlin DSL support), and the communications module.
 Each module is responsible for one specific job, and they collectively work together.
+Since the project is implemented on JVM, it can theoretically support any language
+that executes on top of the JVM, and not just Java.
+The implementation officially supports both the Java and Kotlin programming languages.
+
+\subsection{Client}\label{subsec:client}
+
+\subsection{Kotlin Client}\label{subsec:kotlinClient}
+The Kotlin client module servers to provide extended support to the Kotlin
+programming language.
+This module defines an expressive Kotlin DSL (domain specific language) which
+serves to make use of the expressive grammar defined by the Kotlin programming language.
+This module is dependent upon the main Client module to handle any code migration and job requests.
+The DSL is design to be extremely simple for users to understand.
+
+\subsubsection{Synchronous Kotlin Example}
+
+Since Kotlin has extremely expressive syntax, a function which accepts a
+lambda expression can be written as a block with a body. For example, code
+in the delegate block would be executed remotely in a blocking manor.
+
+\begin{lstlisting}
+val a = 100
+val b = 200
+
+val result = delegate {
+    // blocking remote execution
+    a * b
+}
+
+println("$a * $b = $result")
+\end{lstlisting}
+
+\subsubsection{Asynchronous Kotlin Example}
+
+To execute an asynchronous job, the programmer can define code within an
+'async' block and optionally provide a 'callback' block to aquire the result.
+
+\begin{lstlisting}
+val a = 10
+val b = 20
+
+async {
+    a * b // executes remotely
+} callback {
+    // executes locally
+    println("$a * $b = $it")
+}
+\end{lstlisting}
+
+\subsection{Job Server}\label{subsec:jobServer}
 
 \subsection{Load Balancer}\label{subsec:modules}
 
