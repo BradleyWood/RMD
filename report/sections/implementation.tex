@@ -9,6 +9,48 @@ Since the project is implemented on JVM, it can theoretically support any langua
 that executes on top of the JVM, and not just Java.
 The implementation officially supports both the Java and Kotlin programming languages.
 
+\subsection{Communications}\label{subsec:communcations}
+
+Network communications is an import part of the distributed system.
+The communications module has the job of guaranteeing that messages
+are passed from client to server and are handled by the correct handler.
+Networking is done on top of the TCP protocol, however, it is possible to
+implement using UDP.
+The UDP protocol would add extra challenges to the communications because
+UDP does not guarantee the order of messages upon arrival.
+This could be problematic if a job request came before the associated
+code migration operation.
+
+The communication protocol is a very simple request-reply protocol.
+Each message contains the following information:
+message length, request Id, and serialized message content.
+The messages are serialized and deserialized using a framework call Fast-Serialization,
+which has a greater performance than the native JVM serialization algorithms.
+
+The communications layer only supports synchronous requests, however, this is acceptable
+for asynchronous jobs because the requests are sent on top of the executor service (lightweight thread-pool).
+To avoid busy waiting, the wait-notify pattern is used.
+A thread that is waiting for a response from the server invokes wait(),
+whilst notify() is called when the response is received from the server.
+This allows any threads to sleep during the interim period, and to help
+save computing resources.
+
+\begin{minipage}{\linewidth}
+
+    \setlength{\belowcaptionskip}{15pt plus 3pt minus 2pt}
+    \captionof{table}{Message Format}
+    \begin{tabular}{ c l }
+        \hline
+        \multicolumn{1}{c}{Number of Bytes} & \multicolumn{1}{c}{Content} \\
+        \hline
+        4 & Message Length (N) \\
+        4 & Request Id \\
+        N & Message Content \\
+    \end{tabular}
+
+\end{minipage}
+
+
 \subsection{Client}\label{subsec:client}
 The Client module is responsible for determining the method call sites at runtime from their
 method reference, serializing classes and their dependencies, and performing the migration/job
