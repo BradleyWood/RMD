@@ -106,6 +106,26 @@ async {
 
 \subsection{Job Server}\label{subsec:jobServer}
 
+It is the responsibility of the job server to handle incoming
+migration requests and to perform the execution of any job requests.
+Upon receiving a migration request, the job server attempts attempts to
+load all classes specified in the request.
+This is easily accomplished by providing a custom class loader
+that searches the class map (key=class name, value=bytecode) instead
+of the local file system.
+In the unlikely event that a class fails to load, either because it is corrupted or
+it's dependencies are missing, the job server will reply with a failure message.
+
+After the migration action has been completed, clients can send a number of job requests
+in parallel to the server.
+Each job request contains the following information: the method name, the method signature
+the name of it's declaring class, and the function parameters.
+This information is required find the declaring class, and to invoke the method
+by using reflection.
+In the event that the class or method is not found, the server will send the failure
+response.
+
+
 \subsection{Load Balancer}\label{subsec:modules}
 
 The load balancer has the important job of managing the use of resources
