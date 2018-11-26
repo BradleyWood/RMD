@@ -166,7 +166,8 @@ This information is required find the declaring class, and to invoke the method
 by using reflection.
 In the event that the class or method is not found, the server will send the failure
 response.
-
+If a job throws an exception during it's execution, the server will respond with
+the exception information including it's detail message and stack trace.
 
 \subsection{Load Balancer}\label{subsec:modules}
 
