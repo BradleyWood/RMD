@@ -14,6 +14,7 @@ delegates.
 - [rmd-examples](/rmd-examples) - examples in both java and Kotlin
 - [rmd-jobserver](/rmd-jobserver/src/main/java/net/uoit/rmd) - the server responsible for executing jobs
 - [rmd-kotlin](/rmd-kotlin/src/main/kotlin/net/uoit/rmd) - kotlin client module with dsl
+- [rmd-load-balancer](/rmd-load-balancer/src/main/java/net/uoit/rmd) - load balancing across several job servers
 
 ## Java Support
 
