@@ -1,7 +1,8 @@
 config {
     hosts: {
+        "35.243.160.240"
         "localhost"
     }
-    errorStrategy: "THROW_EXCEPTION"
+    errorStrategy: "RETRY"
     port: 7070
 }
