@@ -10,6 +10,7 @@ import net.uoit.rmd.event.MessageListener;
 import net.uoit.rmd.messages.*;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -72,7 +73,7 @@ public class LoadBalancer implements Runnable, ConnectionListener, MessageListen
         while (jobServers.isEmpty()) {
             synchronized (jobServers) {
                 try {
-                    jobServers.wait();
+                    jobServers.wait(100);
                 } catch (InterruptedException e) {
                 }
             }
@@ -94,6 +95,7 @@ public class LoadBalancer implements Runnable, ConnectionListener, MessageListen
                 migrate(classMap);
                 return server.submit(jobRequest);
             } catch (IOException ignored) {
+                ignored.printStackTrace();
             } catch (NoJobServerException e) {
                 return new JobResponse(e);
             }
@@ -115,6 +117,7 @@ public class LoadBalancer implements Runnable, ConnectionListener, MessageListen
 
             for (final String host : hosts) {
                 tasks.add(executorService.submit(() -> {
+                    System.out.println("Trying: " + host);
                     try {
                         String address = host;
                         int port = RmdConfig.DEFAULT_JOB_SERVER_PORT;
@@ -126,7 +129,13 @@ public class LoadBalancer implements Runnable, ConnectionListener, MessageListen
                             port = Integer.parseInt(addressPortSplit[1]);
                         }
 
-                        final Connection connection = new Connection(new Socket(address, port));
+
+                        final InetSocketAddress endPoint = new InetSocketAddress(address, port);
+                        final Socket socket = new Socket();
+
+                        socket.connect(endPoint, config.getSocketTimeout());
+
+                        final Connection connection = new Connection(socket);
                         connection.addConnectionListener(this);
 
                         final JobServer jobServer = new JobServer(connection, host);
@@ -137,8 +146,9 @@ public class LoadBalancer implements Runnable, ConnectionListener, MessageListen
                         }
 
                         new Thread(connection).start();
+                        System.out.println("Success: " + host);
                     } catch (IOException e) {
-
+                        System.out.println("Failed: " + host);
                     }
                 }));
             }
@@ -147,13 +157,12 @@ public class LoadBalancer implements Runnable, ConnectionListener, MessageListen
                 try {
                     tasks.removeFirst().get();
                 } catch (InterruptedException | ExecutionException e) {
-                    e.printStackTrace();
                 }
             }
 
             synchronized (this) {
                 try {
-                    wait(1000);
+                    wait(100);
                 } catch (InterruptedException ignored) {
                 }
             }
@@ -162,10 +171,13 @@ public class LoadBalancer implements Runnable, ConnectionListener, MessageListen
 
     @Override
     public void connected(final Connection connection) {
+        System.out.println("Connected to " + connection.getSocket().getInetAddress());
     }
 
     @Override
     public void disconnected(final Connection connection) {
+        System.out.println("Disconnected from " + connection.getSocket().getInetAddress());
+
         synchronized (jobServers) {
             jobServers.removeIf(p -> p.getConnection() == connection);
         }

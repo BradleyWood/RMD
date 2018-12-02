@@ -13,10 +13,12 @@ public @Data class RmdConfig implements Serializable {
     public static final String RUN_LOCAL_STRATEGY = "RUN_LOCALLY";
     public static final String THROW_ERROR_STRATEGY = "THROW_EXCEPTION";
     public static final int DEFAULT_JOB_SERVER_PORT = 5050;
+    public static final int DEFAULT_SOCKET_TIMEOUT = 2000;
 
     private final Set<String> hosts;
     private final String errorStrategy;
     private final int port;
+    private final int socketTimeout;
 
     public void addHost(final String host) {
         verifyHost(host);
@@ -25,6 +27,14 @@ public @Data class RmdConfig implements Serializable {
             hosts.add(host);
         }
     }
+
+    public int getSocketTimeout() {
+        if (socketTimeout <= 0)
+            return DEFAULT_SOCKET_TIMEOUT;
+
+        return socketTimeout;
+    }
+
 
     private void verifyHost(final @NonNull String host) {
         final String[] addressPortSplit = host.split(":");
@@ -60,5 +70,5 @@ public @Data class RmdConfig implements Serializable {
         }
     }
 
-    public static final RmdConfig DEFAULT = new RmdConfig(new HashSet<>(), "RETRY", 6050);
+    public static final RmdConfig DEFAULT = new RmdConfig(new HashSet<>(), "RETRY", 6050, 2000);
 }
