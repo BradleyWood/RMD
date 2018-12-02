@@ -4,9 +4,9 @@ import net.uoit.rmd.messages.JobRequest;
 import net.uoit.rmd.messages.JobResponse;
 import net.uoit.rmd.messages.MigrationRequest;
 import net.uoit.rmd.messages.Response;
+import net.uoit.rmd.security.JobServerSecurityManager;
 import org.nustaq.serialization.FSTConfiguration;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
@@ -68,16 +68,29 @@ public class Client {
                 if (instance != null)
                     args = Arrays.copyOfRange(args, 1, args.length);
 
+                setSecurity(true);
+
                 final Object result = method.invoke(instance, args);
 
                 response = new JobResponse(result);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 response = new JobResponse(e);
-                e.printStackTrace();
+            } finally {
+                setSecurity(false);
             }
         }
 
         System.out.println("Response: " + response);
         return response;
+    }
+
+    private void setSecurity(boolean enabled) {
+        final SecurityManager sm = System.getSecurityManager();
+
+        if (System.getSecurityManager() instanceof JobServerSecurityManager) {
+            final JobServerSecurityManager jsm = (JobServerSecurityManager) sm;
+
+            jsm.setSecurity(enabled);
+        }
     }
 }
