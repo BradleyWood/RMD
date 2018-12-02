@@ -24,7 +24,7 @@ code migration operation.
 The communication protocol is a very simple request-reply protocol.
 Each message contains the following information:
 message length, request Id, and serialized message content.
-The messages are serialized and deserialized using a framework call Fast-Serialization,
+The messages are serialized and deserialized using a framework called Fast-Serialization,
 which has a greater performance than the native JVM serialization algorithms.
 
 The communications layer only supports synchronous requests, however, this is acceptable
@@ -68,8 +68,8 @@ The call site information specifies the signature of a method, the method name, 
 This information is required to perform the code migration process.
 A function also may make use of any dependency, even if it is not defined as part of the Java
 runtime environment.
-These dependencies are determined by visiting all methods, fields, and instructions,
-defined in the class file using the ASM bytecode manipulation and generation framework.
+These dependencies are determined by visiting all classes, methods, fields, and instructions,
+defined within the class file using the ASM bytecode manipulation and generation framework.
 After the dependency graph is formed, the client is ready to perform a migration request.
 When an asynchronous job request is sent to a server, its handler is processed by the executor service
 (a lightweight thread-pool).
@@ -104,7 +104,7 @@ delegate((a, b) -> a * b,
 \end{lstlisting}
 
 \subsection{Kotlin Client}\label{subsec:kotlinClient}
-The Kotlin client module servers to provide extended support to the Kotlin
+The Kotlin client module serves to provide extended support to the Kotlin
 programming language.
 This module defines an expressive Kotlin DSL (domain specific language) which
 serves to make use of the expressive grammar defined by the Kotlin programming language.
@@ -168,6 +168,24 @@ In the event that the class or method is not found, the server will send the fai
 response.
 If a job throws an exception during it's execution, the server will respond with
 the exception information including it's detail message and stack trace.
+
+Each job executes on an expandable thread pool the serves to limit
+the cost of instantiating threads. Each thread is cached and jobs
+are are continuously submitted as the requests come in. If all the threads
+in the thread pool are busy processing a job, the thread pool will
+expand by adding instantiating a new thread.
+
+Since the Job Server is responsible for loading and executing untrusted
+code, a special security manager was implemented to inhibit malicious actors.
+This is the most important feature to convince people to use the platform.
+Users would not donate their resources with any sort of security guarantee.
+The Job Server's security policy will deni all permissions to untrusted code
+by default and this policy will not interfere with any of the server's
+permission requirements. This is possible by providing an implementation
+of the SecurityManager that has a thread-local security enable/disable flag
+that can only be modified by the class that executes the jobs. This will provide
+the server with access to the internet so it can communicate with it's clients
+whilst simultaneously blocking the same permissions for jobs.
 
 \subsection{Load Balancer}\label{subsec:modules}
 
