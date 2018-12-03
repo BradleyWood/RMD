@@ -1,1 +1,84 @@
 \section{FEATURES}\label{sec:features}
+
+The platform shines in the field cluster computing because of it's
+usability features and support for multiple JVM languages.
+
+\subsection{Static Type Safety}\label{subsec:typeSafety}
+
+The platform is able to main strict type static safety by using
+both method references and lambda expressions to denote
+the job that you wish to delegate.
+This technique allows the compiler to infer the type
+information through a functional interface.
+A functional interface is an interface who's type
+can be used as a method reference or lambda expression.
+To delegate a job, the user makes a call to one of the overloaded
+delegate functions.
+These delegate functions each accept one of several functional
+interfaces that define functions which accept from 0 to 3 parameters
+and produce a result, as well as the inputs to these functions.
+Since the parameter types of the functional interface and the parameter inputs
+are generic, the types must match or else the compiler will report
+and error.
+
+
+\subsection{Synchronous and Asynchronous Jobs}\label{subsec:synchronousAndAsynchronousJobs}
+
+Both synchronous and asynchronous jobs are supported by the client.
+Asynchronous jobs allow the machine to perform useful work
+while jobs are executing remotely.
+The use of synchronous is also important, and is highly applicable
+to divide-and-conquer algorithms.
+Such problem could be divided into several sub-problems which
+execute asynchronously on the job servers.
+Finally, a synchronous job could be used to combine the sub problems
+into a single result.
+
+
+\subsection{Configurability}\label{subsec:configurability}
+
+The implementation provides several configurability options to users.
+In the config.kson file, (kson is an extension of json) users can
+define a list of external hosts which could be either Job Servers,
+or Load Balancer's.
+Due to the distributed transparency, both types of external entities
+are acceptable because client/job server/load balancer do
+not distinguish between each other.
+By default, users can specify up to three ways to handle
+a lack of external computing resources.
+Users can choose between a retry protocol, an exception based model,
+and finally, local execution.
+In an exception based model, the application will simply throw
+and exception if there is no available Job Server
+to process the request.
+
+The Load Balancer module is customizable and can used with other
+job scheduling schemes.
+A new scheme can be easily implemented by inheriting the BalanceStrategy
+class.
+Any BalanceStrategy can be passed to the Load Balancer because it depends upon
+the abstraction, and not any concrete class.
+
+\subsection{Kotlin DSL}\label{subsec:kotlinDsl}
+
+In an attempt to provide platform support to other JVM languages, we
+implemented a Kotlin DSL (domain specific language).
+A domain specific language in this context is an internal DSL, which
+means that it is built on top of the Kotlin and JVM infrastructure
+to provide domain specific enhancements ie., cluster computing.
+This approach allows the user define their jobs within blocks
+that are specific to the cluster computing application.
+For the Kotlin DSL, we provide three types of blocks:
+delegate, async, and callback.
+The delegate block is a block of code that represents a job
+that is to be executed synchronously on the remote job server.
+The last statement in the block is also the result returned to the
+programmer.
+The async and callback blocks are designed to go together because
+a callback is required to retrieve the result from an asynchronous
+job.
+The result of the last statement in the async block is the input
+to the callback.
+The Kotlin DSL serves to enhance the features of the language and to
+provide a cleaner way to define jobs, which does not depend upon
+implementing any interface.
