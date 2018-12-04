@@ -1,1 +1,26 @@
 \section{ARCHITECTURE}\label{sec:architecture}
+
+The distributed system is design with a multi-tier
+architecture and can be used with either 2-tier, or 3-tier
+setups.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.50]{client-server.png}
+    \caption{2-Tier}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.50]{balancing.png}
+    \caption{3-Tier}
+\end{figure}
+
+In the 3-tier architecture, the client communicates with the load balancer
+which acts as a middleman between the client and job servers.
+Any scheduling algorithm could be used with the load balancer via
+dependency injection.
+It should be noted that in the 2-tier setup, the client can still make use
+of several job servers because it has its own builtin load balancer.
+This approach requires the client to have prior knowledge about
+the existence of each job server.
