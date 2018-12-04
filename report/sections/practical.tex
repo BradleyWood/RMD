@@ -1,0 +1,63 @@
+\section{PRACTICAL USE}\label{sec:practicalUse}
+
+Although RMD is simple to setup and configure,
+best practices should to followed to improve the
+efficiency of your system.
+
+
+\subsection{Project Setup}\label{subsec:projectSetup}
+
+To setup your project, simply add the dependency to your
+project.
+If you are using Kotlin, your project should depend
+on the rmd-kotlin module to take advantage of
+the features provided by the Kotlin DSL.
+If you are using Java (or other JVM languages), your project
+should depend on the rmd-client module.
+
+\begin{figure}[H]
+\caption{Kotlin Coordinates}
+    \begin{lstlisting}
+ca.uoit.rmd:rmd-kotlin:$rmd-version
+    \end{lstlisting}
+\end{figure}
+
+\begin{figure}[H]
+    \caption{Java Coordinates}
+    \begin{lstlisting}
+ca.uoit.rmd:rmd:$rmd-version
+    \end{lstlisting}
+\end{figure}
+
+Finally, the project should be configured by creating
+a config.kson file to specify the location of any
+external load balancer's and job servers. You may also specify
+an error strategy, in the case that no external servers are found.
+
+\begin{figure}[H]
+\caption{config.kson}
+    \begin{lstlisting}
+config {
+    hosts: {
+        "35.243.160.240"
+        "localhost"
+    }
+}
+    \end{lstlisting}
+\end{figure}
+
+\subsection{Writing Jobs}\label{subsec:writingJobs}
+Before you begin implementing your jobs, check for
+existing algorithms.
+It is often the case that you do not need to define
+your jobs as existing algorithms can be used via a method reference.
+
+When writing your own custom jobs, try to limit the number of
+dependencies used by your job.
+More dependencies will affect the initialization overhead cost
+as this will require the client to detect, locate, and migrate
+more code at runtime.
+
+
+\subsection{Setting up Servers}\label{subsec:settingUpServers}
+
