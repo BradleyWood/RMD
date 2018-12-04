@@ -46,9 +46,12 @@ public class Rmd {
             if (configFile.exists()) {
                 config = (RmdConfig) kson.readObject(new File("config.kson"));
             } else {
-                final InputStream in = Object.class.getResourceAsStream("config.kson");
+                final InputStream in = Rmd.class.getResourceAsStream("/config.kson");
                 if (in != null) {
                     config = (RmdConfig) kson.readObject(in, "UTF-8", null);
+                } else {
+                    System.err.println("WARNING: No configuration found.");
+                    config = RmdConfig.DEFAULT;
                 }
             }
         } catch (Exception e) {
