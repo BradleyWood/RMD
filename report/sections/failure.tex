@@ -1,0 +1,61 @@
+\section{FAILURE PROTOCOLS}\label{sec:conclusions}
+
+Failures are inevitable in a large scale cluster computing network.
+Such failures are most likely to be caused by network error, which
+is why several failure protocols have been designed and implemented.
+These failures can occur both before and after the successful
+migration and execution of jobs.
+In general, failures are ignored and the job requests are passed
+on to the next available job server.
+However, this is not possible if no computing resources are
+found on the network.
+The handling of this type of error can be configured
+using configuration file.
+Currently, there are three supported protocols to handle
+this type of failure.
+In the first protocol, jobs are to be executed locally when
+there are no external computing resources available.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.50]{failure.png}
+    \caption{Local Execution on Failure}
+\end{figure}
+
+Secondly, such events can be handled with a wait and retry protocol.
+If users decide to choose this approach, they will not be bogged down
+by the local execution of jobs, but they must accept that the any network
+issues may not resolve themselves and no error messages are displayed.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.70]{failure2.png}
+    \caption{Wait and Retry}
+\end{figure}
+
+Finally, the last protocol is the error protocol.
+If a lack of resources ever occurs, the client will
+throw an exception indicating that no external resources
+are available.
+If the user chooses this scheme, they should be careful
+to catch any exceptions that could be thrown by delegating
+resources by using a try-catch block.
+If uncaught, the JVM will halt the execution of the thread
+that threw the exception.
+
+Sometimes failure can occur after a job request has been issued.
+In this event, it is preferred to cut losses and pass on the request
+to the next available job server.
+This design decision was chosen because of the uncertainty surrounding
+the other nodes in the network.
+A cache based system could have been implemented, but given that the duration
+of each job execution should be relatively small, it is unlikely that the issue
+would be resolved within that time frame.
+This could require the client attempt to reconnect to a server to retrieve
+a result with no guarantees of success, all while wasting time.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.70]{disconnect.png}
+    \caption{Disconnect Protocol}
+\end{figure}

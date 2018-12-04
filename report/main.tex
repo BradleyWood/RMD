@@ -14,8 +14,18 @@
 \usepackage{caption}
 \usepackage{listings}
 \usepackage{color}
+\usepackage{geometry}
+\geometry{a4paper}
+\usepackage[english]{babel}
+\selectlanguage{english}
+\usepackage[utf8]{inputenc}
 
-\title{A Load Balanced Distributed Computing Platform with Code Migration}
+\usepackage{subcaption}
+\usepackage{amssymb}
+\usepackage{authblk}
+\usepackage{graphicx}
+
+\title{Job Delegation}
 \author{Bradley Wood$^{1}$, Brock Watling$^{2}$, Zachary Winn$^{3}$, Daniel Messiha$^{4}$}
 
 \definecolor{dkgreen}{rgb}{0,0.6,0}
@@ -71,6 +81,8 @@ tabsize=3
     \input{sections/features.tex}
 
     \input{sections/implementation.tex}
+
+    \input{sections/failure.tex}
 
     \input{sections/architecture.tex}
 
