@@ -32,16 +32,26 @@ public class JobServerSecurityManager extends SecurityManager {
 
     @Override
     public void checkPermission(final Permission permission) {
-        if (flag.get()) {
+        if (flag.get() && !"suppressAccessChecks".equals(permission.getName())) {
             super.checkPermission(permission);
         }
     }
 
     @Override
     public void checkPermission(final Permission permission, final Object context) {
-        if (flag.get()) {
+        if (flag.get() && !"suppressAccessChecks".equals(permission.getName())) {
             super.checkPermission(permission, context);
         }
+    }
+
+    @Override
+    public void checkCreateClassLoader() {
+
+    }
+
+    @Override
+    public void checkPackageAccess(final String pkg) {
+
     }
 
     public void setSecurity(final boolean enable) {
