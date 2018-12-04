@@ -71,8 +71,12 @@ runtime environment.
 These dependencies are determined by visiting all classes, methods, fields, and instructions,
 defined within the class file using the ASM bytecode manipulation and generation framework.
 After the dependency graph is formed, the client is ready to perform a migration request.
+At this point, information pertaining to the job and it's dependencies is cached, and does
+not need to be looked up again.
 When an asynchronous job request is sent to a server, its handler is processed by the executor service
 (a lightweight thread-pool).
+This allows for asynchronous requests even though the communications module only
+supports a synchronous request-reply protocol.
 
 \subsubsection{Synchronous Java Example}
 
