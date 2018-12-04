@@ -1,0 +1,6 @@
+config {
+    hosts: {
+        "localhost"
+    }
+    errorStrategy: "RETRY"
+}
