@@ -3,13 +3,13 @@
 Failures are inevitable in a large scale cluster computing network.
 Such failures are most likely to be caused by network error, which
 is why several failure protocols have been designed and implemented.
-These failures can occur both before and after the successful
-migration and execution of jobs.
+These failures can occur both before or after the successful
+migration and while executing the jobs.
 In general, failures are ignored and the job requests are passed
 on to the next available job server.
 However, this is not possible if no computing resources are
 found on the network.
-The handling of this type of error can be configured
+Handling this type of error can be configured
 using configuration file.
 Currently, there are three supported protocols to handle
 this type of failure.
@@ -24,7 +24,7 @@ there are no external computing resources available.
 
 Secondly, such events can be handled with a wait and retry protocol.
 If users decide to choose this approach, they will not be bogged down
-by the local execution of jobs, but they must accept that the any network
+by the local execution of the jobs, but they must accept that any network
 issues may not resolve themselves and no error messages are displayed.
 
 \begin{figure}[H]
@@ -51,8 +51,8 @@ the other nodes in the network.
 A cache based system could have been implemented, but given that the duration
 of each job execution should be relatively small, it is unlikely that the issue
 would be resolved within that time frame.
-This could require the client attempt to reconnect to a server to retrieve
-a result with no guarantees of success, all while wasting time.
+This could require the client to attempt to reconnect to a server to retrieve
+the result with no guarantees of success, all while wasting time.
 
 \begin{figure}[H]
     \centering
