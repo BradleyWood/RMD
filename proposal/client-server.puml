@@ -1,10 +1,15 @@
 @startuml
 
 [Client] as client
-[Job Server] as server
-[Database] as db
+[Job Server A] as serverA
+[Job Server B] as serverB
+[Job Server C] as serverC
+'[Database] as db
 
-client <..> server
-server <..> db
+client <..> serverA
+client <..> serverB
+client <..> serverC
+
+'server <..> db
 
 @enduml
