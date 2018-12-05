@@ -40,7 +40,7 @@ into a single result.
 
 \subsection{Configurability}\label{subsec:configurability}
 
-The implementation provides several configurability options to users.
+The implementation provides several configurability options to the users.
 In the config.kson file, (kson is an extension of json) users can
 define a list of external hosts which could be either Job Servers,
 or Load Balancer's.
@@ -50,9 +50,9 @@ not distinguish between each other.
 By default, users can specify up to three ways to handle
 a lack of external computing resources.
 Users can choose between a retry protocol, an exception based model,
-and finally, local execution.
+and finally local execution.
 In an exception based model, the application will simply throw
-and exception if there is no available Job Server
+an exception if there is no available Job Server
 to process the request.
 
 The Load Balancer module is customizable and can used with other
@@ -69,7 +69,7 @@ implemented a Kotlin DSL (domain specific language).
 A domain specific language in this context is an internal DSL, which
 means that it is built on top of the Kotlin and JVM infrastructure
 to provide domain specific enhancements ie., cluster computing.
-This approach allows the user define their jobs within blocks
+This approach allows the user to define their jobs within blocks
 that are specific to the cluster computing application.
 For the Kotlin DSL, we provide three types of blocks:
 delegate, async, and callback.
