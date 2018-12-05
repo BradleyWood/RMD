@@ -4,16 +4,16 @@ The RMD platform provides two forms of significant overhead.
 Advanced users can limit the effects of initiation and network
 overhead by following the best practices.
 It is not easy to talk about the efficiency of the platform
-because it is highly dependent on the implementation of requirements
-of user specified jobs.
+because it is highly dependent on the implementation requirements
+of the user specified jobs.
 
 \subsection{Initialization Overhead}\label{subsec:initializationOverhead}
 
 Initialization overhead occurs during the first call to a delegate job.
-Firstly, RMD must locate and connect to external load balancer's and
+Firstly, RMD must locate and connect to external load balancers and
 job servers.
 Concurrently, RMD will attempt to dynamically determine the callsite
-of your job, and determine it's dependencies.
+of your job, and determine its dependencies.
 There are two determinants of this overhead, including the
 number of dependencies that your job depends on, and the network
 speed.
@@ -35,7 +35,7 @@ process has been completed.
 Firstly, the job must be looked up in the cache to verify
 that the code exists on the external server.
 Next, the job's function parameters must be serialized, which
-is usually not a cause of large overhead, however, it could be a problem
+is usually not a cause of large overhead. However, it could be a problem
 if your job parameters consume a large amount of data.
 The transmission phase is usually the largest source of overhead,
 and often dwarfs the other forms of overhead.
