@@ -1,7 +1,7 @@
 \section{PRACTICAL USE}\label{sec:practicalUse}
 
 Although RMD is simple to setup and configure,
-best practices should to followed to improve the
+best practices should be followed to improve the
 efficiency of your system.
 
 
@@ -31,7 +31,7 @@ ca.uoit.rmd:rmd:$rmd-version
 
 Finally, the project should be configured by creating
 a config.kson file to specify the location of any
-external load balancer's and job servers. You may also specify
+external load balancers and job servers. You may also specify
 an error strategy, in the case that no external servers are found.
 
 \begin{figure}[H]
@@ -58,9 +58,9 @@ More dependencies will affect the initialization overhead cost
 as this will require the client to detect, locate, and migrate
 more code at runtime.
 Jobs should be designed to take longer than the network
-delay, however, if they are too long, server side failure
+delay however, if they are too long, a server side failure
 could result a large delay to computation time.
-It is suggested to write jobs that execute in 1--10 seconds.
+It is suggested to write jobs that execute in 1-10 seconds.
 
 If you plan to execute more than one asynchronous job at the
 same time, pay attention to common concurrency pitfalls.
@@ -70,14 +70,14 @@ atomic references.
 Failure to do so may result in undesirable behaviour.
 For example, consider a program that executes 1000 asynchronous
 jobs and their callback function increments a global counter.
-It is extremely likely that your counter not be equal to 1000
+It is extremely likely that your counter may not be equal to 1000
 after completion.
 
 Finally, pay attention to the context in which your job executes.
 Your job should not attempt to modify the state of any variable
 outside the scope of the job.
 Instead, a result should always be returned by the job.
-You may however, accept the state of local and global variables
+You may however accept the state of local and global variables
 as input, so long as they are constant and immutable.
 Modification of the state of any object or reference outside the job
 will not transfer back to the master program.
@@ -86,14 +86,14 @@ will not transfer back to the master program.
 
 Both the load balancer and job server modules act as standalone
 applications.
-You simple need to download the build artifacts and write
+You simply need to download the build artifacts and write
 a very simple configuration file.
 
 
 \subsubsection{Load Balancer}
 
 The configuration file of the load balancer should point
-to the known job server's in the network.
+to the known job server in the network.
 By making use of the load balancer, clients do not
 need to know about all the job servers on the network.
 This allows administrators to easily scale up/down the
