@@ -1,13 +1,21 @@
 \section{RELATED WORK}\label{sec:related}
 
-There are several cluster computing frameworks such as Hadoop, Apache Spark, Apache Storm, Samza, and Flink. These frameworks facilitate the combination of several independent computers into a unified system through software and networking. This architecture allows higher availability for greater performance computing and reality to provide greater computational power than the individual machines.   
-
-Apache Hadoop is an open source, scalable and fault-tolerant framework that exclusively provides batch processing and efficiently processes large volumes of data on cluster commodity hardware and assures that data remains available in spite of inevitable host failures. 
-
-Apache Storm is a stream processing framework that focuses on extremely low latency and could be the best option for workloads that require near real-time processing. It can handle very large quantities of data and deliver results with less latency than other solutions  
-
-Apache Samza is a stream processing framework that is tightly tied to the Apache Kafka messaging system it is designed to guarantees Kafka with fault tolerance, buffering and state storage.
-
-Apache Spark is a general purpose and lightning fast cluster computing system. It provides high-level APIs and is a next generation batch processing framework with stream processing capabilities.
-
-Apache Flink is a stream processing framework that can also handle batch tasks, considering batches to simply be data streams with finite boundaries and therefore treats batch processing as a subset of stream processing.
+There are several cluster computing frameworks such as Apache Hadoop and Hazelcast. These frameworks facilitate the combination of several independent computers into a unified system through software and networking. This architecture allows higher availability for greater performance computing and reality to provide greater computational power than the individual machines. These existing systems however have high barriers of entry, which require a complicated
+setup process that the average users could not do in order to utilize the benefits of the framework. Our project will be tackling this issue and improve upon
+RPC systems by facilitating load balancing with
+code migration in cluster computing applications.
+Some existing RPC systems may implement code
+migration, but they do not provide any load balancing
+capabilities and Java RMI has design limitations
+that prevent the client from executing static
+methods because they cannot be defined in the interface.
+The goal of this platform is to eliminate
+the common barriers of entry to solving large-scale
+distributed problems and to provide clients with
+limited programming experience the opportunity to
+parallelize large tasks over a network.
+The project has increased usability over other
+examples of RPC systems with code migration. It
+streamlines distributed workloads on the JVM so
+that the user only needs to make the request and
+specify any dependencies.
