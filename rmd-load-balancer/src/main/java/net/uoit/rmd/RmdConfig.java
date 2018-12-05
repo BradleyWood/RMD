@@ -20,6 +20,11 @@ public @Data class RmdConfig implements Serializable {
     private final int port;
     private final int socketTimeout;
 
+    /**
+     * Add a host to the configuration
+     *
+     * @param host The host to add
+     */
     public void addHost(final String host) {
         verifyHost(host);
 
@@ -28,6 +33,10 @@ public @Data class RmdConfig implements Serializable {
         }
     }
 
+    /**
+     *
+     * @return The connection timeout for the sockets
+     */
     public int getSocketTimeout() {
         if (socketTimeout <= 0)
             return DEFAULT_SOCKET_TIMEOUT;
@@ -35,7 +44,10 @@ public @Data class RmdConfig implements Serializable {
         return socketTimeout;
     }
 
-
+    /**
+     *
+     * @param host
+     */
     private void verifyHost(final @NonNull String host) {
         final String[] addressPortSplit = host.split(":");
 
@@ -50,6 +62,9 @@ public @Data class RmdConfig implements Serializable {
         }
     }
 
+    /**
+     * Verifies the grammar of the specified hosts
+     */
     public void verify() {
         synchronized (hosts) {
             for (final String host : hosts) {
@@ -58,12 +73,21 @@ public @Data class RmdConfig implements Serializable {
         }
     }
 
+    /**
+     * Remove a host from the configuration
+     *
+     * @param host The host to remove
+     */
     public void removeHost(final String host) {
         synchronized (hosts) {
             hosts.remove(host);
         }
     }
 
+    /**
+     *
+     * @return The list of hosts defined in the configuration
+     */
     public Set<String> getHosts() {
         synchronized (hosts) {
             return new HashSet<>(hosts);

@@ -83,7 +83,7 @@ public @Data class RMDServer extends Thread {
         @Override
         public void requestReceived(final Connection connection, final Request request, final int rId) {
             executorService.submit(() -> {
-                System.out.println(request);
+//                System.out.println(request);
                 final Client client = clientConnectionMap.get(connection);
 
                 Response response = new Response(false, "The request has no handler");

@@ -13,12 +13,22 @@ public @Data class Server implements Runnable {
     private ServerSocket serverSocket;
     private Thread thread;
 
+    /**
+     * Initialize the server
+     *
+     * @throws IOException
+     */
     public void init() throws IOException {
         serverSocket = new ServerSocket(config.getPort());
         thread = new Thread(this);
         thread.start();
     }
 
+    /**
+     * Stop the exection of the server
+     *
+     * @throws IOException
+     */
     public void stop() throws IOException {
         serverSocket.close();
         thread.interrupt();

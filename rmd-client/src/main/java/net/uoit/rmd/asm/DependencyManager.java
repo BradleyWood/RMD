@@ -11,10 +11,26 @@ import static net.uoit.rmd.asm.DependencySet.PACKAGE_FILTER;
 
 public class DependencyManager {
 
+    /**
+     * Traverses the dependency graph of the specified class file and detects
+     * any dependencies that are not part of the Java or Kotlin runtime environments.
+     *
+     * @param clazz The class to check
+     * @return A map of dependencies (key=class name, value=class file)
+     * @throws IOException If there are errors reading the class files.
+     */
     public static Map<String, byte[]> getDependencies(final Class clazz) throws IOException {
         return getAllDependencies(new HashSet<>(), clazz.getName());
     }
 
+    /**
+     * Traverses the dependency graph of the specified class file and detects
+     * any dependencies that are not part of the Java or Kotlin runtime environments.
+     *
+     * @param clazz The fully qualified class name
+     * @return A map of dependencies (key=class name, value=class file)
+     * @throws IOException If there are errors reading the class files.
+     */
     public static Map<String, byte[]> getDependencies(final String clazz) throws IOException {
         return getAllDependencies(new HashSet<>(), clazz);
     }

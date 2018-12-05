@@ -4,6 +4,11 @@ import net.uoit.rmd.Client;
 
 import java.security.Permission;
 
+/**
+ * Provides security on a per-thread basis to sandbox jobs.
+ * Only the class that executes jobs has the right to
+ * enable and disable the security.
+ */
 public class JobServerSecurityManager extends SecurityManager {
 
     private final ThreadLocal<Boolean> flag = new ThreadLocal<Boolean>() {
@@ -46,12 +51,12 @@ public class JobServerSecurityManager extends SecurityManager {
 
     @Override
     public void checkCreateClassLoader() {
-
+        // override to allow access
     }
 
     @Override
     public void checkPackageAccess(final String pkg) {
-
+        // override to allow
     }
 
     public void setSecurity(final boolean enable) {

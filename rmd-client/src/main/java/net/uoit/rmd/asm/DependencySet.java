@@ -16,6 +16,10 @@ class DependencySet {
 
     private final @Getter Set<String> dependencies = new HashSet<>();
 
+    /**
+     * A list of packages to filter out because they should not be migrated
+     * as they already exists on the server side.
+     */
     public static final List<String> PACKAGE_FILTER = Arrays.asList(
             "java.",
             "javax.",
@@ -23,6 +27,11 @@ class DependencySet {
             "kotlin."
     );
 
+    /**
+     * Add a dependency to the set based on the type descriptor
+     *
+     * @param desc The type descriptor
+     */
     public void addDesc(final String desc) {
         if (desc == null || !desc.contains("L")) // primitive
             return;
@@ -35,6 +44,11 @@ class DependencySet {
         addInternalName(type.getInternalName());
     }
 
+    /**
+     * Add dependency by its internal name
+     *
+     * @param internalName The internal name of the class
+     */
     public void addInternalName(final String internalName) {
         if (internalName == null)
             return;
@@ -63,6 +77,11 @@ class DependencySet {
         dependencies.add(name);
     }
 
+    /**
+     * Adds a method to the dependency set
+     *
+     * @param methodDesc The method descriptor
+     */
     public void addMethod(final String methodDesc) {
         final Type type = Type.getMethodType(methodDesc);
         final String retType = type.getReturnType().getDescriptor();
