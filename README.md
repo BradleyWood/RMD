@@ -43,12 +43,16 @@ java -jar rmd-jobserver/target/rmd-jobserver-1.0-SNAPSHOT-jar-with-dependencies.
 ```
 
 Finally, to test the Kotlin example execute the example
-with the following command:
+with the following command. This example will generate
+a random list of 10 numbers and delegate the sorting job
+to the job server.
 
 ```
 java -jar rmd-examples/kotlin-example/target/kotlin-example-1.0-SNAPSHOT-jar-with-dependencies.jar
 ```
 
+The Java example will use the job server to calculate
+a factorial and perform some basic arithmetic.
 To test the Java example:
 
 ```
