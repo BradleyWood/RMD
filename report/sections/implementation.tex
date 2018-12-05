@@ -154,42 +154,42 @@ async {
 
 It is the responsibility of the job server to handle incoming
 migration requests and to perform the execution of any job requests.
-Upon receiving a migration request, the job server attempts attempts to
+Upon receiving a migration request, the job server attempts to
 load all classes specified in the request.
 This is easily accomplished by providing a custom class loader
 that searches the class map (key=class name, value=bytecode) instead
 of the local file system.
 In the unlikely event that a class fails to load, either because it is corrupted or
-it's dependencies are missing, the job server will reply with a failure message.
+its dependencies are missing, the job server will reply with a failure message.
 
 After the migration action has been completed, clients can send a number of job requests
 in parallel to the server.
 Each job request contains the following information: the method name, the method signature
-the name of it's declaring class, and the function parameters.
-This information is required find the declaring class, and to invoke the method
+the name of its declaring class, and the function parameters.
+This information is required to find the declaring class, and to invoke the method
 by using reflection.
 In the event that the class or method is not found, the server will send the failure
 response.
-If a job throws an exception during it's execution, the server will respond with
-the exception information including it's detail message and stack trace.
+If a job throws an exception during its execution, the server will respond with
+the exception information including the detailed message and stack trace.
 
 Each job executes on an expandable thread pool the serves to limit
 the cost of instantiating threads. Each thread is cached and jobs
 are are continuously submitted as the requests come in. If all the threads
 in the thread pool are busy processing a job, the thread pool will
-expand by adding instantiating a new thread.
+expand by instantiating and adding a new thread.
 
 Since the Job Server is responsible for loading and executing untrusted
 code, a special security manager was implemented to inhibit malicious actors.
 This is the most important feature to convince people to use the platform.
-Users would not donate their resources with any sort of security guarantee.
+Users would not donate their resources without any sort of security guarantee.
 The Job Server's security policy will deni all permissions to untrusted code
 by default and this policy will not interfere with any of the server's
 permission requirements. This is possible by providing an implementation
 of the SecurityManager that has a thread-local security enable/disable flag
 that can only be modified by the class that executes the jobs. This will provide
-the server with access to the internet so it can communicate with it's clients
-whilst simultaneously blocking the same permissions for jobs.
+the server with access to the internet so it can communicate with the clients
+while simultaneously blocking the same permissions for jobs.
 
 \subsection{Load Balancer}\label{subsec:modules}
 
@@ -199,7 +199,7 @@ This module depends upon the communication module to handle all network IO
 between clients and job servers.
 The load balancer accepts connections from clients and forwards their job
 request based on resource availability.
-It also also clients to self describe as a job server in order to allow for
+It also allows clients to self describe as a job server in order to allow for
 resource donation.
 To balance the computing load across several job servers, a round-robin
 scheduling algorithm is provided as the default scheduling algorithm.
