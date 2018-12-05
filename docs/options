@@ -1,0 +1,24 @@
+-classpath
+'D:/IdeaProjects/Distributed-Systems-Project/rmd-comm/target/classes;D:/IdeaProjects/Distributed-Systems-Project/rmd-load-balancer/target/classes;D:/IdeaProjects/Distributed-Systems-Project/rmd-client/target/classes;D:/IdeaProjects/Distributed-Systems-Project/rmd-examples/target/classes;D:/IdeaProjects/Distributed-Systems-Project/rmd-examples/java-example/target/classes;D:/IdeaProjects/Distributed-Systems-Project/rmd-kotlin/target/classes;D:/IdeaProjects/Distributed-Systems-Project/rmd-examples/kotlin-example/target/classes;D:/IdeaProjects/Distributed-Systems-Project/rmd-jobserver/target/classes;C:/Users/Brad/.m2/repository/org/jetbrains/annotations/13.0/annotations-13.0.jar;C:/Users/Brad/.m2/repository/org/jetbrains/kotlin/kotlin-stdlib/1.3.0/kotlin-stdlib-1.3.0.jar;C:/Users/Brad/.m2/repository/de/ruedigermoeller/fst/2.56/fst-2.56.jar;C:/Users/Brad/.m2/repository/org/projectlombok/lombok/1.16.20/lombok-1.16.20.jar;C:/Users/Brad/.m2/repository/org/javassist/javassist/3.21.0-GA/javassist-3.21.0-GA.jar;C:/Users/Brad/.m2/repository/org/ow2/asm/asm-util/5.2/asm-util-5.2.jar;C:/Users/Brad/.m2/repository/org/jetbrains/kotlin/kotlin-stdlib-common/1.3.0/kotlin-stdlib-common-1.3.0.jar;C:/Users/Brad/.m2/repository/org/ow2/asm/asm/5.2/asm-5.2.jar;C:/Users/Brad/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.8.8/jackson-core-2.8.8.jar;C:/Users/Brad/.m2/repository/org/objenesis/objenesis/2.5.1/objenesis-2.5.1.jar;C:/Users/Brad/.m2/repository/org/ow2/asm/asm-tree/5.2/asm-tree-5.2.jar'
+-encoding
+'UTF-8'
+-protected
+-sourcepath
+'D:/IdeaProjects/Distributed-Systems-Project/rmd-comm/src/main/java;D:/IdeaProjects/Distributed-Systems-Project/rmd-comm/target/generated-sources/annotations;D:/IdeaProjects/Distributed-Systems-Project/rmd-load-balancer/src/main/java;D:/IdeaProjects/Distributed-Systems-Project/rmd-load-balancer/target/generated-sources/annotations;D:/IdeaProjects/Distributed-Systems-Project/rmd-client/src/main/java;D:/IdeaProjects/Distributed-Systems-Project/rmd-client/target/generated-sources/annotations;D:/IdeaProjects/Distributed-Systems-Project/rmd-examples/java-example/src/main/java;D:/IdeaProjects/Distributed-Systems-Project/rmd-examples/java-example/target/generated-sources/annotations;D:/IdeaProjects/Distributed-Systems-Project/rmd-kotlin/src/main/kotlin;D:/IdeaProjects/Distributed-Systems-Project/rmd-examples/kotlin-example/src/main/kotlin;D:/IdeaProjects/Distributed-Systems-Project/rmd-jobserver/src/main/java;D:/IdeaProjects/Distributed-Systems-Project/rmd-jobserver/target/generated-sources/annotations'
+-author
+-bottom
+'Copyright &#169; 2018. All rights reserved.'
+-charset
+'UTF-8'
+-d
+'D:/IdeaProjects/Distributed-Systems-Project/target/site/apidocs'
+-docencoding
+'UTF-8'
+-doctitle
+'rmd 1.0-SNAPSHOT API'
+-linkoffline
+'https://docs.oracle.com/javase/8/docs/api' 'D:/IdeaProjects/Distributed-Systems-Project/target/javadoc-bundle-options'
+-use
+-version
+-windowtitle
+'rmd 1.0-SNAPSHOT API'

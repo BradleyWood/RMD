@@ -27,18 +27,42 @@ public class LoadBalancer implements Runnable, ConnectionListener, MessageListen
     private final RmdConfig config;
     private Thread thread;
 
+    /**
+     * Constructs a load balancer with the default configuration.
+     * Uses the round robing scheduling algorithm.
+     *
+     */
     public LoadBalancer() {
         this(RmdConfig.DEFAULT);
     }
 
+    /**
+     * Constructs a load balancer with the specified load balancer.
+     *
+     * @param config The configuration
+     */
     public LoadBalancer(final RmdConfig config) {
         this(new ArrayList<>(), config);
     }
 
+    /**
+     * Constructs a load balancer with the given configuration.
+     * Defaults to the round robin scheduling algorithm
+     *
+     * @param jobServers The list of job servers
+     * @param config The configuration
+     */
     public LoadBalancer(final ArrayList<JobServer> jobServers, final RmdConfig config) {
         this(jobServers, new RoundRobinStrategy(), config);
     }
 
+    /**
+     * Constructs a new load balancer with the given configuration and load balancing strategy
+     *
+     * @param jobServers The list of job servers
+     * @param balanceStrategy The strategy of which to use to balance the load
+     * @param config The configuration
+     */
     public LoadBalancer(final @NonNull List<JobServer> jobServers, final @NonNull BalanceStrategy balanceStrategy,
                         final @NonNull RmdConfig config) {
         this.jobServers = jobServers;
@@ -59,10 +83,23 @@ public class LoadBalancer implements Runnable, ConnectionListener, MessageListen
         }
     }
 
+    /**
+     * Tells the load balancer about some class files
+     * that may need to be migrated to one (or many)
+     * job servers.
+     *
+     * @param classMap The map of class files
+     */
     public void addClassDefs(final Map<String, byte[]> classMap) {
         this.classMap.putAll(classMap);
     }
 
+    /**
+     * Invokes a migration operation
+     *
+     * @param classMap The map of class files
+     * @return True upon success
+     */
     public boolean migrate(final Map<String, byte[]> classMap) {
         if (jobServers.isEmpty() && RmdConfig.THROW_ERROR_STRATEGY.equals(config.getErrorStrategy()))
             throw new NoJobServerException("no server to migrate to");
@@ -88,6 +125,12 @@ public class LoadBalancer implements Runnable, ConnectionListener, MessageListen
         return true;
     }
 
+    /**
+     * Submit a job request to one of the available job servers.
+     *
+     * @param jobRequest The job request
+     * @return The response from the job server
+     */
     public JobResponse submit(final JobRequest jobRequest) {
         while (true) {
             try {

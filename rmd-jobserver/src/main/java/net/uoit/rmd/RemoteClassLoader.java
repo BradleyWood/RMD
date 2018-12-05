@@ -17,6 +17,11 @@ public class RemoteClassLoader extends ClassLoader {
         this(ClassLoader.getSystemClassLoader(), Collections.emptyMap());
     }
 
+    /**
+     * Add a class definition to the table
+     * @param name The name of the class
+     * @param def The class file
+     */
     public void addClass(final String name, final byte[] def) {
         classes.put(name, def);
     }

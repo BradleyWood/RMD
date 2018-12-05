@@ -6,6 +6,9 @@ import net.uoit.rmd.NoJobServerException;
 
 import java.util.List;
 
+/**
+ * Implements the round robin scheduling strategy.
+ */
 public class RoundRobinStrategy implements BalanceStrategy {
 
     private int idx = 0;

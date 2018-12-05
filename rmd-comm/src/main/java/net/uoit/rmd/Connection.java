@@ -13,6 +13,9 @@ import java.io.*;
 import java.net.Socket;
 import java.util.*;
 
+/**
+ * Handles all networking IO between client, server, and load balancer
+ */
 public @Data class Connection implements Runnable {
 
     private static final FSTConfiguration conf = FSTConfiguration.createDefaultConfiguration();
@@ -30,6 +33,12 @@ public @Data class Connection implements Runnable {
     private IOException exception;
     private boolean isRunning;
 
+    /**
+     * Construct a connection from a socket
+     *
+     * @param socket The socket
+     * @throws IOException
+     */
     public Connection(final Socket socket) throws IOException {
         this.socket = socket;
         this.dis = new DataInputStream(socket.getInputStream());
@@ -37,6 +46,16 @@ public @Data class Connection implements Runnable {
         socket.setTcpNoDelay(true);
     }
 
+    /**
+     * Send a synchronous request to the server.
+     * This method is blocking and will sleep until
+     * a response is received from the server.
+     *
+     * @param request
+     * @param <T> The expected response type
+     * @return The response
+     * @throws IOException
+     */
     public <T extends Response> T send(final Request request) throws IOException {
         final int req = counter++;
 
@@ -54,14 +73,34 @@ public @Data class Connection implements Runnable {
         return (T) responses.remove(req);
     }
 
+    /**
+     * Send a message that does not require a response.
+     *
+     * @param message
+     * @throws IOException
+     */
     public void send(final Message message) throws IOException {
         sendMessage(message, -1);
     }
 
+    /**
+     * Sends a to a specific request
+     *
+     * @param response The response
+     * @param rId The id of the response message
+     * @throws IOException
+     */
     public void send(final Response response, final int rId) throws IOException {
         sendMessage(response, rId);
     }
 
+    /**
+     * Send a message
+     *
+     * @param obj The message to send
+     * @param rId The request id
+     * @throws IOException
+     */
     private void sendMessage(final @NonNull Message obj, final int rId) throws IOException {
         final byte[] message = conf.asByteArray(obj);
 
