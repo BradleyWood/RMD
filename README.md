@@ -2,10 +2,10 @@
 
 ## Introduction
 
-Remote Method Delegation provides an implementation of RPC that performs
-code migration at runtime. RMD currently supports both synchronous and asynchronous
-delegates.
-
+RMD (remote method delegation) is a secure lightweight cluster computing
+platform with load balancing and code migration. RMD is focused on
+improving the usability issues that plague related
+industry solutions.
 
 ## Project Layout
 
@@ -15,6 +15,49 @@ delegates.
 - [rmd-jobserver](/rmd-jobserver/src/main/java/net/uoit/rmd) - the server responsible for executing jobs
 - [rmd-kotlin](/rmd-kotlin/src/main/kotlin/net/uoit/rmd) - kotlin client module with dsl
 - [rmd-load-balancer](/rmd-load-balancer/src/main/java/net/uoit/rmd) - load balancing across several job servers
+
+## Build Instructions
+
+This project is built using maven build tool. The maven wrapper is included
+to simplify the build process. You may need install JDK-8 and set you
+JAVA_HOME path in your environment variables. Simply execute the following
+command to build the project.
+
+```
+mvnw install
+```
+
+or
+
+```
+./mvnw install
+```
+
+### Test an example
+
+Firstly, start a job server by executing the following
+command in the root directory of the project
+
+```
+java -jar rmd-jobserver/target/rmd-jobserver-1.0-SNAPSHOT-jar-with-dependencies.jar
+```
+
+Finally, to test the Kotlin example execute the example
+with the following command. This example will generate
+a random list of 10 numbers and delegate the sorting job
+to the job server.
+
+```
+java -jar rmd-examples/kotlin-example/target/kotlin-example-1.0-SNAPSHOT-jar-with-dependencies.jar
+```
+
+The Java example will use the job server to calculate
+a factorial and perform some basic arithmetic.
+To test the Java example:
+
+```
+java -jar rmd-examples/java-example/target/java-example-1.0-SNAPSHOT-jar-with-dependencies.jar
+```
 
 ## Java Support
 

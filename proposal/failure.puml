@@ -1,11 +1,13 @@
 @startuml
 
-(*) --> if "job server available" then
-    -->[false] "Execute job locally"
-    -left->(*)
-else
-    -->[true] "Send job request"
-    -right-> (*)
-endif
+start
+
+while (server available?) is (not available)
+endwhile(available)
+
+
+:send job request;
+
+end
 
 @enduml
