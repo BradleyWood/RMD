@@ -22,45 +22,25 @@ interfaces that define functions which accept from 0 to 3 parameters
 and produce a result, as well as the inputs to these functions.
 Since the parameter types of the functional interface and the parameter inputs
 are generic, the types must match or else the compiler will report
-and error.
+an error.
 
 
 \subsection{Synchronous and Asynchronous Jobs}\label{subsec:synchronousAndAsynchronousJobs}
 
 Both synchronous and asynchronous jobs are supported by the client.
-Asynchronous jobs allow the machine to perform useful work
-while jobs are executing remotely.
-The use of synchronous is also important, and is highly applicable
-to divide-and-conquer algorithms.
-Such problem could be divided into several sub-problems which
-execute asynchronously on the job servers.
-Finally, a synchronous job could be used to combine the sub problems
-into a single result.
+Asynchronous jobs allow the machine to perform useful work while jobs are executing remotely.
+The use of synchronous is also important and is highly applicable to divide-and-conquer algorithms.
+Such a problem could be divided into several sub-problems which execute asynchronously on the job servers.
+Finally, a synchronous job could be used to combine the subproblems into a single result.
 
 
 \subsection{Configurability}\label{subsec:configurability}
 
-The implementation provides several configurability options to the users.
-In the config.kson file, (kson is an extension of json) users can
-define a list of external hosts which could be either Job Servers,
-or Load Balancer's.
-Due to the distributed transparency, both types of external entities
-are acceptable because the client, job server, and load balancer do
-not distinguish between each other.
-By default, users can specify up to three ways to handle
-a lack of external computing resources.
-Users can choose between a retry protocol, an exception based model,
-and finally local execution.
-In an exception based model, the application will simply throw
-an exception if there is no available Job Server
-to process the request.
+The implementation provides several configuration options to the users. In the config.kson file, (kson is an extension of json) users can define a list of external hosts which could be either Job Servers or Load Balancers. Due to the distributed transparency, both types of external entities are acceptable because the client, job server, and load balancer do not distinguish between each other. By default, users can specify up to three ways to handle
+a lack of external computing resources. Users can choose between a retry protocol, an exception based model, and finally local execution. In an exception based model, the application will simply throw an exception if there is no available Job Server to process the request.
 
-The Load Balancer module is customizable and can used with other
-job scheduling schemes.
-A new scheme can be easily implemented by inheriting the BalanceStrategy
-class.
-Any BalanceStrategy can be passed to the Load Balancer because it depends upon
-the abstraction, and not any concrete class.
+The Load Balancer module is customizable and can be used with other job scheduling schemes. A new scheme can be easily implemented by inheriting the BalanceStrategy Class. Any BalanceStrategy can be passed to the Load Balancer because it depends upon the abstraction and not any concrete class.
+
 
 \subsection{Kotlin DSL}\label{subsec:kotlinDsl}
 

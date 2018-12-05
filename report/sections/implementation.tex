@@ -11,7 +11,7 @@ The implementation officially supports both the Java and Kotlin programming lang
 
 \subsection{Communications}\label{subsec:communcations}
 
-Network communications is an importtant part of the distributed system.
+Network communications is an important part of the distributed system.
 The communications module has the job of guaranteeing that messages
 are passed from client to server and are handled by the correct handler.
 Networking is done on top of the TCP protocol however, it is possible to
@@ -175,7 +175,7 @@ the exception information including the detailed message and stack trace.
 
 Each job executes on an expandable thread pool the serves to limit
 the cost of instantiating threads. Each thread is cached and jobs
-are are continuously submitted as the requests come in. If all the threads
+are continuously submitted as the requests come in. If all the threads
 in the thread pool are busy processing a job, the thread pool will
 expand by instantiating and adding a new thread.
 
@@ -183,7 +183,7 @@ Since the Job Server is responsible for loading and executing untrusted
 code, a special security manager was implemented to inhibit malicious actors.
 This is the most important feature to convince people to use the platform.
 Users would not donate their resources without any sort of security guarantee.
-The Job Server's security policy will deni all permissions to untrusted code
+The Job Server's security policy will deny all permissions to untrusted code
 by default and this policy will not interfere with any of the server's
 permission requirements. This is possible by providing an implementation
 of the SecurityManager that has a thread-local security enable/disable flag
