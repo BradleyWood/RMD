@@ -7,7 +7,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 
-fun main(args: Array<String>) {
+fun main() {
     val numbers = 10.randomList(0, 100)
     println("List of Numbers: $numbers")
 
