@@ -35,8 +35,6 @@ public @Data class JobServer {
             final MigrationRequest mr = new MigrationRequest(classMap);
             final Response response = connection.send(mr);
 
-            System.out.println("Migrate to " + host);
-
             if (response.isSuccess()) {
                 classes.addAll(classMap.keySet());
             } else {

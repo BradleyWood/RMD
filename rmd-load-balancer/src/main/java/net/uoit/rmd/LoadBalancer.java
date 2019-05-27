@@ -160,7 +160,6 @@ public class LoadBalancer implements Runnable, ConnectionListener, MessageListen
 
             for (final String host : hosts) {
                 tasks.add(executorService.submit(() -> {
-                    System.out.println("Trying: " + host);
                     try {
                         String address = host;
                         int port = RmdConfig.DEFAULT_JOB_SERVER_PORT;
@@ -189,9 +188,7 @@ public class LoadBalancer implements Runnable, ConnectionListener, MessageListen
                         }
 
                         new Thread(connection).start();
-                        System.out.println("Success: " + host);
                     } catch (IOException e) {
-                        System.out.println("Failed: " + host);
                     }
                 }));
             }
@@ -214,12 +211,10 @@ public class LoadBalancer implements Runnable, ConnectionListener, MessageListen
 
     @Override
     public void connected(final Connection connection) {
-        System.out.println("Connected to " + connection.getSocket().getInetAddress());
     }
 
     @Override
     public void disconnected(final Connection connection) {
-        System.out.println("Disconnected from " + connection.getSocket().getInetAddress());
 
         synchronized (jobServers) {
             jobServers.removeIf(p -> p.getConnection() == connection);
