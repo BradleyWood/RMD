@@ -70,7 +70,7 @@ class DependencySet {
         name = name.replace("/", ".");
 
         for (final String s : PACKAGE_FILTER) {
-            if (name.startsWith(s))
+            if (name.startsWith(s) && !name.endsWith("NonDeterministic"))
                 return;
         }
 
