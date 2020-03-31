@@ -46,3 +46,38 @@ infix fun <R> Future<R>.callback(callback: (result: R) -> Unit) {
         callback.invoke(get())
     })
 }
+
+class RingNode<I, R>(val func: (I) -> R) {
+    var previousNode: RingNode<R, *>? = null
+
+    fun waitFor(timeout: Int? = null): R? {
+        return null
+    }
+}
+
+infix fun <I, R> RingNode<*, I>.then(func: (I) -> R): RingNode<I, R> {
+    val prev = RingNode(func)
+    previousNode = prev
+
+    return prev
+}
+
+infix fun <I, R> RingNode<*, I>.callback(func: (I) -> R) {
+    // deploy
+    // execute
+    // await result
+    // invoke callback
+
+}
+
+fun <R> RingNode<*, R>.waitFor(timeout: Int? = null): R? {
+    return null
+}
+
+fun <R> ring(func: () -> R): RingNode<Unit, R> {
+    val rw: (Unit) -> R = {
+        func.invoke()
+    }
+
+    return RingNode(rw)
+}
